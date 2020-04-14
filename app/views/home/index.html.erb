@@ -1,21 +1,62 @@
-<div style="width: 100%; height: 90vh;margin-top: 1vh;">
-<table style="width: 98%;height: 100%; margin: auto;">
-  <tr>
-    <td style="width: 100%;height: 22.5%;border-bottom: 1px solid cornflowerblue;">
+<style>
+	.header {
+		background: lightblue;
+		color: black;
+	}
 
-    </td>
-  </tr>
+	.header td{
+		width: 25%;
+		padding: 10px;
+		border: 1px solid white;
+	}
 
-  <tr>
-    <td style="width: 100%;height: 55%;border-bottom: 1px solid cornflowerblue;">
+	.t-data td{
+		font-weight: normal;
+		padding: 10px;
+		background: #F9F6F4;
+		border: 1px solid white;
+	}
 
-    </td>
-  </tr>
+	#data{
+		width: 100%;
+		border: 1.5px solid lightblue;
+		margin-top: 15px;
+		border-radius: 0px; 
+	}
+</style>
 
-  <tr>
-    <td style="width: 100%;height: 22.5%;">
+<table style="width: 100%;" >
+	<tr>
+		<td style='width: 100%;font-size: 1.5em;font-weight: bold;text-align: center;padding: 7px;border-radius: 0px; border: 1px solid lightblue;'>
+			Birth Statistics
+		</td>
+	<tr>
 
-    </td>
-  </tr>
-</table>
-</div>
+	<tr>
+		<td style='width: 100%;font-size: 1.35em;font-weight: bold;text-align: center;'>
+			<table id="data"> 
+				<tr class='header'>
+					<td>Site</td>
+					<td>Today</td>
+					<td>This Month</td>
+					<td>This Year</td>
+				</tr>
+				<% @sites.each do |site| %>
+					<tr class='t-data'>
+						<td style='background:  #C7E1BA'><%=site%></td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+					</tr>
+				<% end %>
+
+				<tr class='t-data'>
+					<td  style='font-weight: bold;background:  #C7E1BA'>Total</td>
+					<td  style='font-weight: bold;background: white;'>0</td>
+					<td  style='font-weight: bold;background: white;'>0</td>
+					<td  style='font-weight: bold;background: white;'>0</td>
+				</tr>
+			</table>
+		</td>
+	<tr>
+<table>

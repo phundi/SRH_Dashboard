@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Smart-HMIS</title>
+  <title>MeBRS Monitoring Dashboard</title>
 
   <link href="/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/css/sb-admin.css" rel="stylesheet">
@@ -15,10 +15,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
-    <meta name="Kenneth Kapundi" content="Homepage for HMIS">
+    <meta name="Kenneth Kapundi" content="Homepage for Dashboard">
     <link href="/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+ <script src="data/mtema_boundary.js"></script>
+  <script src="data/sites.js"></script>
+  <script src="data/district_offsets.js"></script>
 
   <%= csrf_meta_tags %>
+ <% theme = '#2e6da4' %>
   <style>
       .panel{
           border-radius: 0px !important;
@@ -73,6 +77,7 @@
           float: right;
           margin-top: 0px;
           margin-bottom: 0px;
+	  color: white;
       }
 
       img {
@@ -87,130 +92,32 @@
       input, select{
           box-shadow: 2px 2px 2px #ccc;
       }
+	.tab{
+		width: 99.5% !important;
+		padding: 10px;
+		font-size: 1.3em;
+		border-radius: 0px;
+		margin: 0.5px;
+		background: <%= theme%>;
+	}
+
+	#tabs tr td{
+		width: 25%;
+	}
+
+	.tab:active{
+		background: lightgray;
+	}
   </style>
 </head>
 <body>
-    <div id="wrapper">
+
 
       <!-- Navigation -->
-      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
+      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" style="background: <%= theme%>; text-align: center !important;">
 
-          <a class="navbar-brand" href="/">Smart-HMIS</a>
-        </div>
-        <!-- Top Menu Items -->
-        <ul class="nav navbar-right top-nav">
-          <%
-              img_url =   (@cur_user.image.present? && File.exists?("#{Rails.root}/public/#{@cur_user.image}")) ? "#{@cur_user.image}?cache=none" : "/uploads/#{@cur_user.gender}.png?cache=none"
-          %>
-          <a href="/" style="float: left;margin: 4px;"> <img src="<%= img_url %>" alt="<i class='fa fa-user'></i>" class='img-circle' width='40' height='40'></a>
-          <li class="dropdown" style="float: right">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">  <%= @cur_user.username%> <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li>
-                <a href="/user/view?user_id=<%= @cur_user.id%>"><i class="fa fa-fw fa-user"></i> My Account</a>
-              </li>
-              <li>
-                <a href="/"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
-              </li>
-              <li>
-                <a href="/"><i class="fa fa-fw fa-gear"></i> Settings</a>
-              </li>
-              <li class="divider"></li>
-              <li>
-                <a href="/logout"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
-              </li>
-            </ul>
-          </li>
-        </ul>
-        <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
-        <div class="collapse navbar-collapse navbar-ex1-collapse">
-          <ul class="nav navbar-nav side-nav">
-            <li id="home">
-              <a href="/?active_tab=home"><i class="fa fa-fw fa-home"></i> Home</a>
-            </li>
-            <li id="clients">
-              <a href="/client/index?active_tab=clients"><i class="fa fa-fw fa-list"></i> Clients</a>
-            </li>
-            <li id="workflow">
-              <a href="/?active_tab=workflow"><i class="fa fa-fw fa-list"></i> Workflow</a>
-            </li>
+        <a class="navbar-brand" href="/" style="font-size: 1.5em;margin-left: 35%;"><b>Maternity eBRS Monitoring Dashboard</b></a>
 
-            <li id="module">
-              <a href="javascript:" data-toggle="collapse" data-target="#modules"><i class="glyphicon glyphicon-th">
-                </i> Modules Configs<i class="fa fa-fw fa-caret-down"></i>
-              </a>
-              <ul id="modules" class="collapse">
-                <li>
-                  <a href="/configs/opd?active_tab=module">OPD</a>
-                </li>
-                <li>
-                  <a href="/configs/lab?active_tab=module">LAB</a>
-                </li>
-                <li>
-                  <a href="/configs/anc?active_tab=module">ANC</a>
-                </li>
-                <li>
-                  <a href="/configs/maternity?active_tab=module">Maternity</a>
-                </li>
-                <li>
-                  <a href="/configs/art?active_tab=module">ART</a>
-                </li>
-                <li>
-                  <a href="/configs/pharmacy?active_tab=module">Pharmacy</a>
-                </li>
-                <li>
-                  <a href="/configs/billing?active_tab=module">Billing</a>
-                </li>
-              </ul>
-            </li>
-
-            <li id="config">
-              <a href="javascript:" data-toggle="collapse" data-target="#configs"><i class="fa fa-cog">
-              </i> General Configs <i class="fa fa-fw fa-caret-down"></i>
-              </a>
-              <ul id="configs" class="collapse">
-                <li>
-                  <a href="/location/index?active_tab=config">Locations</a>
-                </li>
-                <li>
-                  <a href="/location/tags?active_tab=config">Location Types</a>
-                </li>
-                <li>
-                  <a href="/client/client_types?active_tab=config">Client Types</a>
-                </li>
-
-              </ul>
-            </li>
-            <li id="access">
-              <a href="javascript:" data-toggle="collapse" data-target="#acc-c"><i class="fa fa-cog">
-              </i> Access Controls <i class="fa fa-fw fa-caret-down"></i>
-              </a>
-              <ul id="acc-c" class="collapse">
-                <li>
-                  <a href="/user/index?active_tab=access">Users</a>
-                </li>
-                <li>
-                  <a href="/user/roles?active_tab=access">Roles</a>
-                </li>
-                <li>
-                  <a href="/user/permissions?active_tab=access">Permissions</a>
-                </li>
-                <li>
-                  <a href="/user/role_permissions?active_tab=access">Assign Role Permissions</a>
-                </li>
-                <li>
-                  <a href="/user/user_roles?active_tab=access">Assign User Roles</a>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <a href="#"><i class="fa fa-fw fa-table"></i> Reports</a>
-            </li>
-          </ul>
-        </div>
-        <!-- /.navbar-collapse -->
         <script src="/js/jquery.js"></script>
         <script src="/js/bootstrap.min.js"></script>
         <script src="/js/datepicker.js"></script>
@@ -218,20 +125,315 @@
         <%=javascript_include_tag "datatables/jquery.dataTables.min" %>
 
       </nav>
+	<table id='tabs' style='width: 100%; cellpadding: 0px; cellspacing: 0px;margin-bottom: 10px;'>
+		<tr> 
+			<td>
+				<div id="home" class='btn tab' onclick="loadPage('home')"> Home </div>				
+			</td>
+			<td>
+				<div  id="apps" class='btn tab' onclick="loadPage('apps')" > Applications Portal </div>				
+			</td>
+			<td>
+				<div id="stats" class='btn tab' onclick="loadPage('stats')" > Record Status Stats </div>				
+			</td>
+			<td>
+				<div id="reports" class='btn tab' onclick="loadPage('reports')" > Reports </div>				
+			</td>
+		</tr>
+	</table>
+	
+	<table style="width: 98%;margin: auto;"> 
+		<tr>
+		  <td style="width: 35%;height: 86vh;border: 1px lightgray solid;">
+			<div style="width: 95%;height: 95%;margin: auto;">
+			 <div id="c_district"   style="width: 100%; height: 86%; text-align: center; float: right; border: 1px solid lightblue;margin-top: 10%;">	
+			  
+				<object id="district" type="image/svg+xml" data="images/mw/ll_north.svg"
+					  style="height: 96%; width: 97%;float: left; border: 1.5px solid #ccc;margin: 8px;margin-top: 1.5%;">
+				lslslsl
+				</object>
 
-      <div id="page-wrapper">
+			    </div>				
+	
+			</div>
+		  </td>
+		  <td style="width: 65%; border: 1px lightgray solid;height: 86vh; ">
 
-        <%= yield%>
-      </div>
-    </div>
+			<div style="width: 95%;height: 95%;margin: auto;">
+				<%= yield%>
+			</div>		
+		 </td>						
+		</tr>
+	</table>
+
 
 </body>
 
 <script>
 
-    function __$(id){
-        return document.getElementById(id)
+	function __$(id){
+		return document.getElementById(id);
+	}
+
+	function loadPage(page){
+		var btns = document.getElementsByClassName("tab")
+		for( var i = 0; i < btns.length; i++){
+			btns[i].style.background = "<%=theme%>"
+		}
+		
+		__$(page).style.background = "#99CC99";
+	}
+
+	loadPage('home');
+
+    String.prototype.capitalize = function() {
+        return this.charAt(0).toUpperCase() + this.slice(1);
     }
+
+    connections = {};
+    durations = {};
+    radius = {};
+    var refPoints = [-9.6, -17.4, 33.05, 35.98];
+    var offsets = [10, 295, 10, 710];
+    var up = 0;
+    var down = 0;
+    
+    function latLon2Coord(lat, lon) {
+
+        var x, y;
+
+        x = ((offsets[1] - offsets[0]) * ((Math.abs(lon) - Math.abs(refPoints[2])) / (Math.abs(refPoints[3]) - Math.abs(refPoints[2]))))// + offsets[0];
+
+        y = ((offsets[3] - offsets[2]) * ((Math.abs(lat) - Math.abs(refPoints[0])) / (Math.abs(refPoints[1]) - Math.abs(refPoints[0]))))// + offsets[2];
+
+        return [x, y]
+
+    }
+
+    function insertSiteByOffset(x, y, color, id, district, village) {
+
+        var doc = __$("district").contentDocument;
+
+        var mw = doc.getElementById(district);
+
+        var target = districtOffsets[district];
+
+        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+
+        circle.setAttribute("cx", (x - target.x));
+        circle.setAttribute("cy", (y - target.y));
+
+        var r = 0.11;
+        var p = 0;
+        if(radius[village.replace(/\s+/g, '_').toLowerCase()]) {
+            r = radius[village.replace(/\s+/g, '_').toLowerCase()][0];
+            p = radius[village.replace(/\s+/g, '_').toLowerCase()][1]
+        }
+
+        if(r < 0.11){
+            r = 0.11
+        }
+
+        circle.setAttribute("r", r);
+        circle.setAttribute("id", id);
+        circle.setAttribute("fill", color);
+        circle.setAttribute("stroke-width", 0.025);
+        circle.setAttribute("stroke", "rgba(0,0,0,0.7)");
+        circle.setAttribute("data-tooltip", village);
+        var v = village.split(/\__/);
+        v = v[v.length -1 ].replace(/\_/, " ");
+        circle.setAttribute("title", v.capitalize());
+
+        circle.onmouseover = function(){
+           __$("village_label").innerHTML = v.capitalize() + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; " + p + " resident(s)";
+        };
+
+        circle.onmouseout = function(){
+            __$("village_label").innerHTML = "&nbsp;";
+        }
+
+        mw.appendChild(circle);
+
+    }
+
+    function insertSiteMarkerByOffset(x, y, color, id, district, village) {
+
+        var doc = __$("district").contentDocument;
+        var mw = doc.getElementById(district);
+        var target = districtOffsets[district];
+
+        var svgimg = document.createElementNS('http://www.w3.org/2000/svg','image');
+        svgimg.setAttribute('height','2');
+        svgimg.setAttribute('width','2');
+        svgimg.setAttribute('z-index','2000');
+        svgimg.setAttribute('id', ("pin-" + id));
+        svgimg.setAttribute("visibility", "hidden");
+        svgimg.setAttributeNS('http://www.w3.org/1999/xlink','href','pin.svg');
+        svgimg.setAttribute('x',(x - 1.02*target.x));
+        svgimg.setAttribute('y',(y - 1.005*target.y));
+        mw.appendChild(svgimg);
+    }
+
+
+    function loadSiteConnections(district){
+
+        jQuery.ajax({url: "/home/connection_status",
+            success: function(r){
+                connections = JSON.parse(r)[0];
+                durations = JSON.parse(r)[1];
+                radius = JSON.parse(r)[2];
+
+                loadDistrictSitesByOffsets("lilongwe");
+                loadDistrictSitesMarkerByOffsets("lilongwe");
+                drawBoundaries("lilongwe");
+                __$("green").innerHTML = up;
+                __$("red").innerHTML = down;
+
+                jQuery.ajax({url: "/home/connection_lastseen_status",
+                    success: function(r){
+                        lastseen = JSON.parse(r)[0];
+                        loadSites(lastseen, district);
+                    }
+                });
+            }
+        });
+
+
+    }
+
+    function loadDistrictSitesByOffsets(district) {
+
+        var target = sites_by_zones[district];
+
+        for (var i = 0; i < target.length; i++) {
+
+            var result = latLon2Coord(target[i]["latitude"], target[i]["longitude"])
+
+            var colors = ["rgba(255,0,0,0.6)", "rgba(0,200,0,0.6)", "rgba(0,0,200,0.6)"];
+            var vg = district.toLowerCase().replace(/\s/g, '_') + "__mtema__" +target[i]['village'].replace(/\s/g, '_').toLowerCase();
+
+            if (!radius[vg]){
+               // continue;
+            }
+
+            if(connections[vg]) {
+                var pos = 1;
+                up += 1;
+            }else{
+                var pos = 0;
+                down += 1;
+            }
+
+            insertSiteByOffset((result[0] + 0.4), result[1], colors[pos], district + '_' + target[i]["facility_id"], district, vg);
+
+        }
+
+    }
+
+    function loadDistrictSitesMarkerByOffsets(district) {
+
+        var target = sites_by_zones[district];
+
+        for (var i = 0; i < target.length; i++) {
+
+            var result = latLon2Coord(target[i]["latitude"], target[i]["longitude"])
+
+            var colors = ["rgba(255,0,0,0.7)", "rgba(0,200,0,0.7)", "rgba(0,0,200,0.7)"];
+
+            var vg = district.toLowerCase().replace(/\s/g, '_') + "__mtema__" +target[i]['village'].replace(/\s/g, '_').toLowerCase();
+
+            if(connections[vg]) {
+                var pos = 1;
+            }else{
+                var pos = 0;
+            }
+
+            insertSiteMarkerByOffset((result[0] + 0.4), result[1], colors[pos], district + '_' + target[i]["facility_id"], district, vg);
+
+        }
+
+    }
+
+    function loadSites(data, district){
+        var villages = []
+        for (var i in  sites_by_zones[district]){
+
+            site_name = sites_by_zones[district][i]['village']
+            villages.push(sites_by_zones[district][i]['village'].replace(/\s+/, "_").toLowerCase());
+        }
+
+        for (var site_name in  data){
+            var tr = document.createElement("tr");
+
+            var site_village_name = site_name.split(/\__/);
+            site_village_name =  site_village_name[ site_village_name.length - 1];
+            tr.id = site_village_name;
+            var prefix = "";
+            if(villages.indexOf(site_village_name.replace(/\s+/g, '_').toLowerCase()) < 0) {
+                var prefix = "<span style='color: red;'>*</span>";
+            }
+            if(connections[site_name.replace(/\s+/g, '_').toLowerCase()]){
+
+                tr.innerHTML = "<td id='site_name'>"  + prefix + site_village_name.replace(/\_+/g, ' ').capitalize().replace(/^GVH|^GH|^VH|^VG|^GV|^T\/A/i, "").trim() + " <span class='circle online'>&nbsp;<span></td> <td id='online_status'>" + data[site_name] + "</td>";
+            }else{
+                tr.innerHTML = "<td id='site_name'>" + prefix + site_village_name.replace(/\_+/g, ' ').capitalize().replace(/^GVH|^GH|^VH|^VG|^GV|^T\/A/i, "").trim() + " <span class='circle offline'>&nbsp;<span></td> <td id='online_status'>" + data[site_name] + "</td>";
+            }
+
+            __$("list").appendChild(tr);
+        }
+
+        for (var i in  sites_by_zones[district]){
+
+            site_name = sites_by_zones[district][i]['village']
+            var id = sites_by_zones[district][i]['village'].replace(/\s+/, "_").toLowerCase();
+
+            if (__$(site_name)){
+                continue;
+            }
+
+            var tr = document.createElement("tr");
+            tr.id = id;
+            var site_village_name = site_name.split(/\__/);
+            site_village_name =  site_village_name[ site_village_name.length - 1];
+
+            tr.innerHTML = "<td id='site_name'>"+  site_village_name.capitalize().replace(/^GVH|^GH|^VH|^VG|^GV|^T\/A/i, "").trim().replace(/\s+/, " ") + " <span class='circle offline'>&nbsp;<span></td> <td id='online_status'>Offline</td>"
+            __$("list").appendChild(tr);
+        }
+
+    }
+
+    function drawBoundaries(district){
+        for(var i = 0; i < mtema_coordinates.length; i++){
+            var result = latLon2Coord((mtema_coordinates[i][1]),(mtema_coordinates[i][0]));
+            var x = result[0];
+            var y = result[1];
+            var doc = __$("district").contentDocument;
+            var mw = doc.getElementById(district);
+            var target = districtOffsets[district];
+            var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+
+            circle.setAttribute("cx", (x - target.x));
+            circle.setAttribute("cy", (y - target.y));
+            circle.setAttribute("r", "0.02");
+            circle.setAttribute("fill", "black");
+            circle.setAttribute("stroke-width", 0.0005);
+            circle.setAttribute("stroke", "rgba(0,0,0,0.7)");
+            mw.appendChild(circle);
+        }
+    }
+
+    setTimeout(function () {
+    	
+	drawBoundaries("lilongwe");
+
+	loadSiteConnections("lilongwe");
+
+    }, 500);
+
+    function __$(id){
+        return document.getElementById(id);
+    }
+
 </script>
 
 <style>
