@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<script type="text/javascript" src="/bootstrap-daterangepicker/moment.js"></script>
+<script type="text/javascript" src="/bootstrap-daterangepicker/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="/bootstrap-daterangepicker/daterangepicker-bs3.css" />
+
+<style>
+	.td-filter label{
+		font-size: 1.2em;
+		color: darkslategray;
+	}
+
+	#filters input, #filters select{
+		padding: 5px;
+		margin: 3px;
+		border-radius: 1px;
+		border: 1px solid lightblue;
+		font-size: 1.1em;
+		font-weight: bold;
+		color: darkslategray;
+	}
+	.td-filter label, .td-ctrl select, .td-ctrl input{
+
+		width: 100%;
+	}
+
+	.td-filter, .td-ctrl{
+
+		width: 40%;
+	}
+
+	#controls{
+		width: 100%;	
+	}
+
+	#tbl-data th{
+		font-size: 1.3em;
+		background: lightsteelblue;
+		padding: 7px;
+	}
+
+	#tbl-data td{
+		font-size: 1.2em;
+		padding: 6px;
+		padding-left: 30px;
+		padding-right: 30px;
+	}
+
+	.left{
+			text-align: right;
+		}
+
+		.value{
+			font-weight: bold;
+			text-align: center;
+		}
+</style>
+
+<table style="width: 100%;" >
+	<tr>
+		<td id="td-ou" colspan="2" 
+			style='width: 100%;font-size: 1.5em;font-weight: bold;text-align: center;padding: 7px;
+			 padding-right: 35px;border-radius: 0px; border: 1px solid lightblue;text-align: left;
+			background: ghostwhite; color: darkslategray;'>
+		 	SRH Report
+		</td>
+	</tr>
+</table>
+<table id="filters" style="width: 60%;margin: auto;margin-top: 1vh;border: 1px solid ghostwhite;">
+	<tr>
+		<td class="td-filter" style="width: 40%;">
+			<label> 
+				Date Range: 
+			</label>
+		</td>
+		<td class="td-ctrl">
+			<input name="daterange" value="" style="width: 100%;" />
+		</td>
+		<td rowspan="3" style="width: 20%;padding-bottom: 5px;padding-left: 20px;" valign="bottom">
+			<table id="controls">
+				<tr>
+					<td>
+						<div class=" btn-controls btn btn-primary btn-md">
+							Generate Report
+						</div>
+					</td>
+					<td>
+						<div class="btn-controls btn btn-primary btn-md">
+							Download CSV
+						</div>
+					</td>
+			</table>
+		</td>
+	</tr>
+
+	<tr>
+		<td class="td-filter">
+			<label> 
+				Organisation Unit: 
+			</label>
+		</td>
+		<td class="td-ctrl" >
+			<select id="ou-select" >
+				<option>All</option>
+				<option value"Test Health Center">Test Health Center</option>
+				<option value"Test Health Center 2">Test Health Center 2</option>
+			</select>
+		</td>
+	</tr>
+
+	<tr>
+		<td class="td-filter">
+			<label> 
+				Change Agent: 
+			</label>
+		</td>
+		<td class="td-ctrl" >
+		 <select id="ca-select" style="width: 100%;">
+				<option>All</option>
+				<option value"Change Agent 1">Change Agent 1</option>
+				<option value"Change Agent 2">Change Agent 2</option>
+			</select>
+		</td>
+	</tr>
+
+<table>
+
+<div id="content" style="height: 70vh; max-height: 70vh; margin-top: 1%; overflow: auto; border-top: 1px solid darkred;">
+	
+<table id="tbl-data" class="table table-striped table-condensed table-bordered" 
+		style="overflow: auto;width: 90%; margin: auto; margin-top: 10px;
+ color: darkslategray; display: none;">
+		<tr>
+			<th style="width: 10%">#</th>
+			<th style="width: 45%;padding-left: 30px;">INDICATOR</th>
+			<th style="width: 45%; text-align: center;">TOTAL</th>		
+		<tr>
+
+		<% @indicators.each_with_index do |indicator, i|
+	 %>
+			<tr>
+				<td><%= (i + 1)%></td>
+				<td style="font-weight: bold;"><%= indicator%></td>
+				<td class="value"><%= 0%></td>		
+			</tr>
+
+				<% @breakdown.each do |category, gender|%>
+						<tr>
+							<td>&nbsp;</td>
+							<td style="font-weight: bold;"><%= category%></td>
+							<td class="value"><%= 0%></td>		
+						<tr>
+						<% gender.each do |g, age_breakdown| %>
+							<tr>
+								<td>&nbsp;</td>
+								<td class="left" style="font-weight: bold;"><%= g%></td>
+								<td class="value"><%= 0%></td>		
+							</tr>
+
+							<% age_breakdown.each do |age_category, age_count|%>
+								<tr>
+									<td>&nbsp;</td>
+									<td class="left"><%= age_category%></td>
+									<td class="value"><%= age_count%></td>		
+								</tr>
+							<% end %>
+						<% end %>
+				<% end %>
+		<% end %>
+
+	</table>
+</div>
+
+
+
+<script type="text/javascript">
+		var start_date = moment(). format('DD/MMM/YYYY');
+		var end_date = moment(). format('DD/MMM/YYYY');
+
+		$('input[name="daterange"]').daterangepicker(
+      {
+        format: 'DD/MMM/YYYY',
+        startDate: moment(). format('DD/MMM/YYYY'),
+        endDate: moment(). format('DD/MMM/YYYY')
+      },
+
+      function(start, end, label) {
+        console.log('Range: ' + start.format('DD/MMM/YYYY') + ' - ' + end.format('DD/MMM/YYYY'));
+      }
+
+    );
+
+		jQuery(".input-mini").attr("disabled", true);
+
+		$(document).ready(function(){
+			var table = __$("tbl-data");
+			table.parentNode.removeChild(table);
+			table.style.display = "table"
+			__$("content").appendChild(table);			
+			
+		})
+
+</script>
+</html>

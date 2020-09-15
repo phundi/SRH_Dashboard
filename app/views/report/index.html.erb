@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+	<html>
+
+<style>
+
+	.td-report{
+		
+		
+	}
+
+.td-report-btn{
+		background: lightblue;
+		font-size: 1.75em;
+		color: darkslategray;
+		width: 275px;
+		height: 100px;
+		padding: 25px;
+		margin: 20px;
+		border-radius: 0px;
+		border: 1px solid lightgray;	
+        box-shadow: 7px 7px 3px #888888;	
+        text-shadow: 0px 1px 1px #888888;	
+	}
+
+</style>
+
+<table style="width: 100%;" >
+	<tr>
+		<td id="td-ou" colspan="2" 
+			style='width: 100%;font-size: 1.5em;font-weight: bold;text-align: center;padding: 7px;
+			 padding-right: 35px;border-radius: 0px; border: 1px solid lightblue;text-align: left;
+			background: ghostwhite; color: darkslategray;'>
+		 	Reports
+		</td>
+	</tr>
+</table>
+<table style="margin: auto;margin-top: 3vh;margin-left: 15%;">
+	<tr>
+		<% @reports.each do |report_name, report_path|%>
+		<td class="td-report">
+			<div class="td-report-btn btn btn-lg" onclick="window.location='<%=report_path%>'"> 
+				<%=report_name%>
+			</div>
+		</td>
+		<% end %>		
+	</tr>
+
+<table>
+</html>

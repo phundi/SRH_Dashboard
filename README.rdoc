@@ -1,28 +1,12 @@
-== README
+Dependencies
+	Ruby on rails >= 2.1.2
+	Rails 4.2.6
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Setup:
+	Command: bundle install --local
+	Command: bundle exec rake db:create db:migrate db:seed
 
-Things you may want to cover:
+Runnning Application
+	Command: passenger start
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+Add to nginx for production ENV

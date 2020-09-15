@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>MeBRS Monitoring Dashboard</title>
+  <title>SRH Dashboard</title>
 
   <link href="/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/css/sb-admin.css" rel="stylesheet">
@@ -15,12 +15,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
-    <meta name="Kenneth Kapundi" content="Homepage for Dashboard">
+    <meta name="LIN Dashboard" content="Homepage for Dashboard">
     <link href="/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
- <script src="data/mtema_boundary.js"></script>
-  <script src="data/sites.js"></script>
-  <script src="data/district_offsets.js"></script>
-
+ 
   <%= csrf_meta_tags %>
  <% theme = '#2e6da4' %>
   <style>
@@ -92,6 +89,7 @@
       input, select{
           box-shadow: 2px 2px 2px #ccc;
       }
+
 	.tab{
 		width: 99.5% !important;
 		padding: 10px;
@@ -99,6 +97,8 @@
 		border-radius: 0px;
 		margin: 0.5px;
 		background: <%= theme%>;
+        text-shadow: 0px 2px 1px #888888;	
+        box-shadow: 0px 2px 1px ghostwhite;	
 	}
 
 	#tabs tr td{
@@ -107,6 +107,8 @@
 
 	.tab:active{
 		background: lightgray;
+		text-shadow: 0px 2px 1px #888888;	
+        box-shadow: 0px 2px 1px ghostwhite;	
 	}
   </style>
 </head>
@@ -116,7 +118,7 @@
       <!-- Navigation -->
       <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" style="background: <%= theme%>; text-align: center !important;">
 
-        <a class="navbar-brand" href="/" style="font-size: 1.5em;margin-left: 35%;"><b>Maternity eBRS Monitoring Dashboard</b></a>
+        <a class="navbar-brand" href="/" style="font-size: 1.5em;margin-left: 2%;"><b>SRH Dashboard</b></a>
 
         <script src="/js/jquery.js"></script>
         <script src="/js/bootstrap.min.js"></script>
@@ -125,41 +127,44 @@
         <%=javascript_include_tag "datatables/jquery.dataTables.min" %>
 
       </nav>
-	<table id='tabs' style='width: 100%; cellpadding: 0px; cellspacing: 0px;margin-bottom: 10px;'>
-		<tr> 
-			<td>
-				<div id="home" class='btn tab' onclick="loadPage('home')"> Home </div>				
-			</td>
-			<td>
-				<div  id="apps" class='btn tab' onclick="loadPage('apps')" > Applications Portal </div>				
-			</td>
-			<td>
-				<div id="stats" class='btn tab' onclick="loadPage('stats')" > Record Status Stats </div>				
-			</td>
-			<td>
-				<div id="reports" class='btn tab' onclick="loadPage('reports')" > Reports </div>				
-			</td>
-		</tr>
-	</table>
+	
 	
 	<table style="width: 98%;margin: auto;"> 
 		<tr>
-		  <td style="width: 35%;height: 86vh;border: 1px lightgray solid;">
-			<div style="width: 95%;height: 95%;margin: auto;">
-			 <div id="c_district"   style="width: 100%; height: 86%; text-align: center; float: right; border: 1px solid lightblue;margin-top: 10%;">	
-			  
-				<object id="district" type="image/svg+xml" data="images/mw/ll_north.svg"
-					  style="height: 96%; width: 97%;float: left; border: 1.5px solid #ccc;margin: 8px;margin-top: 1.5%;">
-				lslslsl
-				</object>
 
-			    </div>				
-	
-			</div>
-		  </td>
-		  <td style="width: 65%; border: 1px lightgray solid;height: 86vh; ">
+		<td style="width: 15%;" valign="top" >
+			
+				<table id='tabs' style='width: 100%; cellpadding: 0px; cellspacing: 0px;margin-bottom: 10px;margin-top: 15px !important;margin-right: 5px !important;'>
+					<tr> 
+						<td>
+							<div id="home" class='btn tab' href="/" onclick="loadPage('home', true)"> Dashboard </div>				
+						</td>
+					</tr>
 
-			<div style="width: 95%;height: 95%;margin: auto;">
+					<tr> 
+						<td>
+							<div id="report" class='btn tab' href="/report/index" onclick="loadPage('report', true)"> Reports </div>				
+						</td>
+					</tr>
+
+					<tr> 
+						<td>
+							<div id="users" class='btn tab' href="/user/index" onclick="loadPage('users', true)"> My Account </div>				
+						</td>
+					</tr>
+					<tr> 
+						<td>
+							<div style="height: 77vh;" class='btn tab' onclick=""> &nbsp; </div>				
+						</td>
+					</tr>			
+				</table>		
+		</td>
+
+		
+
+		  <td style="border: 1px ghostwhite solid;height: 92vh; ">
+
+			<div id="container" style="width: 98%;height: 95%;margin: auto;">
 				<%= yield%>
 			</div>		
 		 </td>						
@@ -175,260 +180,26 @@
 		return document.getElementById(id);
 	}
 
-	function loadPage(page){
+	function loadPage(page, redirect){
 		var btns = document.getElementsByClassName("tab")
 		for( var i = 0; i < btns.length; i++){
 			btns[i].style.background = "<%=theme%>"
+		}	
+
+		if(redirect){
+			window.location = __$(page).getAttribute("href");
 		}
-		
-		__$(page).style.background = "#99CC99";
+
+		__$("<%=session[:active_tab]%>").style.background = "#99CC99";	
 	}
 
-	loadPage('home');
+	loadPage('home', false);
 
     String.prototype.capitalize = function() {
         return this.charAt(0).toUpperCase() + this.slice(1);
     }
 
-    connections = {};
-    durations = {};
-    radius = {};
-    var refPoints = [-9.6, -17.4, 33.05, 35.98];
-    var offsets = [10, 295, 10, 710];
-    var up = 0;
-    var down = 0;
-    
-    function latLon2Coord(lat, lon) {
-
-        var x, y;
-
-        x = ((offsets[1] - offsets[0]) * ((Math.abs(lon) - Math.abs(refPoints[2])) / (Math.abs(refPoints[3]) - Math.abs(refPoints[2]))))// + offsets[0];
-
-        y = ((offsets[3] - offsets[2]) * ((Math.abs(lat) - Math.abs(refPoints[0])) / (Math.abs(refPoints[1]) - Math.abs(refPoints[0]))))// + offsets[2];
-
-        return [x, y]
-
-    }
-
-    function insertSiteByOffset(x, y, color, id, district, village) {
-
-        var doc = __$("district").contentDocument;
-
-        var mw = doc.getElementById(district);
-
-        var target = districtOffsets[district];
-
-        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-
-        circle.setAttribute("cx", (x - target.x));
-        circle.setAttribute("cy", (y - target.y));
-
-        var r = 0.11;
-        var p = 0;
-        if(radius[village.replace(/\s+/g, '_').toLowerCase()]) {
-            r = radius[village.replace(/\s+/g, '_').toLowerCase()][0];
-            p = radius[village.replace(/\s+/g, '_').toLowerCase()][1]
-        }
-
-        if(r < 0.11){
-            r = 0.11
-        }
-
-        circle.setAttribute("r", r);
-        circle.setAttribute("id", id);
-        circle.setAttribute("fill", color);
-        circle.setAttribute("stroke-width", 0.025);
-        circle.setAttribute("stroke", "rgba(0,0,0,0.7)");
-        circle.setAttribute("data-tooltip", village);
-        var v = village.split(/\__/);
-        v = v[v.length -1 ].replace(/\_/, " ");
-        circle.setAttribute("title", v.capitalize());
-
-        circle.onmouseover = function(){
-           __$("village_label").innerHTML = v.capitalize() + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; " + p + " resident(s)";
-        };
-
-        circle.onmouseout = function(){
-            __$("village_label").innerHTML = "&nbsp;";
-        }
-
-        mw.appendChild(circle);
-
-    }
-
-    function insertSiteMarkerByOffset(x, y, color, id, district, village) {
-
-        var doc = __$("district").contentDocument;
-        var mw = doc.getElementById(district);
-        var target = districtOffsets[district];
-
-        var svgimg = document.createElementNS('http://www.w3.org/2000/svg','image');
-        svgimg.setAttribute('height','2');
-        svgimg.setAttribute('width','2');
-        svgimg.setAttribute('z-index','2000');
-        svgimg.setAttribute('id', ("pin-" + id));
-        svgimg.setAttribute("visibility", "hidden");
-        svgimg.setAttributeNS('http://www.w3.org/1999/xlink','href','pin.svg');
-        svgimg.setAttribute('x',(x - 1.02*target.x));
-        svgimg.setAttribute('y',(y - 1.005*target.y));
-        mw.appendChild(svgimg);
-    }
-
-
-    function loadSiteConnections(district){
-
-        jQuery.ajax({url: "/home/connection_status",
-            success: function(r){
-                connections = JSON.parse(r)[0];
-                durations = JSON.parse(r)[1];
-                radius = JSON.parse(r)[2];
-
-                loadDistrictSitesByOffsets("lilongwe");
-                loadDistrictSitesMarkerByOffsets("lilongwe");
-                drawBoundaries("lilongwe");
-                __$("green").innerHTML = up;
-                __$("red").innerHTML = down;
-
-                jQuery.ajax({url: "/home/connection_lastseen_status",
-                    success: function(r){
-                        lastseen = JSON.parse(r)[0];
-                        loadSites(lastseen, district);
-                    }
-                });
-            }
-        });
-
-
-    }
-
-    function loadDistrictSitesByOffsets(district) {
-
-        var target = sites_by_zones[district];
-
-        for (var i = 0; i < target.length; i++) {
-
-            var result = latLon2Coord(target[i]["latitude"], target[i]["longitude"])
-
-            var colors = ["rgba(255,0,0,0.6)", "rgba(0,200,0,0.6)", "rgba(0,0,200,0.6)"];
-            var vg = district.toLowerCase().replace(/\s/g, '_') + "__mtema__" +target[i]['village'].replace(/\s/g, '_').toLowerCase();
-
-            if (!radius[vg]){
-               // continue;
-            }
-
-            if(connections[vg]) {
-                var pos = 1;
-                up += 1;
-            }else{
-                var pos = 0;
-                down += 1;
-            }
-
-            insertSiteByOffset((result[0] + 0.4), result[1], colors[pos], district + '_' + target[i]["facility_id"], district, vg);
-
-        }
-
-    }
-
-    function loadDistrictSitesMarkerByOffsets(district) {
-
-        var target = sites_by_zones[district];
-
-        for (var i = 0; i < target.length; i++) {
-
-            var result = latLon2Coord(target[i]["latitude"], target[i]["longitude"])
-
-            var colors = ["rgba(255,0,0,0.7)", "rgba(0,200,0,0.7)", "rgba(0,0,200,0.7)"];
-
-            var vg = district.toLowerCase().replace(/\s/g, '_') + "__mtema__" +target[i]['village'].replace(/\s/g, '_').toLowerCase();
-
-            if(connections[vg]) {
-                var pos = 1;
-            }else{
-                var pos = 0;
-            }
-
-            insertSiteMarkerByOffset((result[0] + 0.4), result[1], colors[pos], district + '_' + target[i]["facility_id"], district, vg);
-
-        }
-
-    }
-
-    function loadSites(data, district){
-        var villages = []
-        for (var i in  sites_by_zones[district]){
-
-            site_name = sites_by_zones[district][i]['village']
-            villages.push(sites_by_zones[district][i]['village'].replace(/\s+/, "_").toLowerCase());
-        }
-
-        for (var site_name in  data){
-            var tr = document.createElement("tr");
-
-            var site_village_name = site_name.split(/\__/);
-            site_village_name =  site_village_name[ site_village_name.length - 1];
-            tr.id = site_village_name;
-            var prefix = "";
-            if(villages.indexOf(site_village_name.replace(/\s+/g, '_').toLowerCase()) < 0) {
-                var prefix = "<span style='color: red;'>*</span>";
-            }
-            if(connections[site_name.replace(/\s+/g, '_').toLowerCase()]){
-
-                tr.innerHTML = "<td id='site_name'>"  + prefix + site_village_name.replace(/\_+/g, ' ').capitalize().replace(/^GVH|^GH|^VH|^VG|^GV|^T\/A/i, "").trim() + " <span class='circle online'>&nbsp;<span></td> <td id='online_status'>" + data[site_name] + "</td>";
-            }else{
-                tr.innerHTML = "<td id='site_name'>" + prefix + site_village_name.replace(/\_+/g, ' ').capitalize().replace(/^GVH|^GH|^VH|^VG|^GV|^T\/A/i, "").trim() + " <span class='circle offline'>&nbsp;<span></td> <td id='online_status'>" + data[site_name] + "</td>";
-            }
-
-            __$("list").appendChild(tr);
-        }
-
-        for (var i in  sites_by_zones[district]){
-
-            site_name = sites_by_zones[district][i]['village']
-            var id = sites_by_zones[district][i]['village'].replace(/\s+/, "_").toLowerCase();
-
-            if (__$(site_name)){
-                continue;
-            }
-
-            var tr = document.createElement("tr");
-            tr.id = id;
-            var site_village_name = site_name.split(/\__/);
-            site_village_name =  site_village_name[ site_village_name.length - 1];
-
-            tr.innerHTML = "<td id='site_name'>"+  site_village_name.capitalize().replace(/^GVH|^GH|^VH|^VG|^GV|^T\/A/i, "").trim().replace(/\s+/, " ") + " <span class='circle offline'>&nbsp;<span></td> <td id='online_status'>Offline</td>"
-            __$("list").appendChild(tr);
-        }
-
-    }
-
-    function drawBoundaries(district){
-        for(var i = 0; i < mtema_coordinates.length; i++){
-            var result = latLon2Coord((mtema_coordinates[i][1]),(mtema_coordinates[i][0]));
-            var x = result[0];
-            var y = result[1];
-            var doc = __$("district").contentDocument;
-            var mw = doc.getElementById(district);
-            var target = districtOffsets[district];
-            var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-
-            circle.setAttribute("cx", (x - target.x));
-            circle.setAttribute("cy", (y - target.y));
-            circle.setAttribute("r", "0.02");
-            circle.setAttribute("fill", "black");
-            circle.setAttribute("stroke-width", 0.0005);
-            circle.setAttribute("stroke", "rgba(0,0,0,0.7)");
-            mw.appendChild(circle);
-        }
-    }
-
-    setTimeout(function () {
-    	
-	drawBoundaries("lilongwe");
-
-	loadSiteConnections("lilongwe");
-
-    }, 500);
+   
 
     function __$(id){
         return document.getElementById(id);

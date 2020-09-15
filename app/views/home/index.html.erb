@@ -1,62 +1,248 @@
+<!DOCTYPE html>
+	<html>
+
+	<script src="data/mtema_boundary.js"></script>
+  <script src="data/sites.js"></script>
+  <script src="data/district_offsets.js"></script>
+
 <style>
-	.header {
-		background: lightblue;
-		color: black;
-	}
 
-	.header td{
-		width: 25%;
-		padding: 10px;
-		border: 1px solid white;
-	}
+ .bottom-widgets{width: 20%;border: 1px solid lightblue;text-align: middle;height: 12vh;}
 
-	.t-data td{
-		font-weight: normal;
-		padding: 10px;
-		background: #F9F6F4;
-		border: 1px solid white;
-	}
-
-	#data{
-		width: 100%;
-		border: 1.5px solid lightblue;
-		margin-top: 15px;
-		border-radius: 0px; 
-	}
 </style>
 
 <table style="width: 100%;" >
 	<tr>
-		<td style='width: 100%;font-size: 1.5em;font-weight: bold;text-align: center;padding: 7px;border-radius: 0px; border: 1px solid lightblue;'>
-			Birth Statistics
+		<td id="td-ou" colspan="2" 
+			style='width: 100%;font-size: 1.5em;font-weight: bold;text-align: center;padding: 7px;
+			 padding-right: 35px;border-radius: 0px; border: 1px solid lightblue;text-align: left;
+			background: ghostwhite; color: darkslategray;'>
+		 	All Organisation Units
 		</td>
-	<tr>
+	</tr>
 
 	<tr>
-		<td style='width: 100%;font-size: 1.35em;font-weight: bold;text-align: center;'>
-			<table id="data"> 
-				<tr class='header'>
-					<td>Site</td>
-					<td>Today</td>
-					<td>This Month</td>
-					<td>This Year</td>
-				</tr>
-				<% @sites.each do |site| %>
-					<tr class='t-data'>
-						<td style='background:  #C7E1BA'><%=site%></td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
+		 <td id="td-map" style="width: 35%;height: 72vh;border: 1px solid lightblue;">
+			 <div id="c_district"   style="width: 100%; height: 72vh; text-align: center; float: right; margin-top: auto;">	
+			  
+				<object id="district" type="image/svg+xml" data="images/mw/ll_north.svg"
+					  style="height: 96%; width: 96%;float: left; border: none;margin: 8px;margin-top: 1.5%;">				
+				</object>
+
+			   </div>		
+		  </td>
+
+		 <td style='width: 65%;font-size: 1.35em;font-weight: bold;text-align: center;' valign="top" >
+			<table style="width: 100%;" >
+					<tr>
+						<td id="td-pie" style='width: 50%;border: none;height: 35vh;'>
+						 	Pie Chart
+						</td>
+						<td id="td-graph" style='width: 50%;border-left: 1px dotted lightblue; border-right: 1px solid lightblue;'>
+						 	Bar Graph
+						</td>
 					</tr>
-				<% end %>
 
-				<tr class='t-data'>
-					<td  style='font-weight: bold;background:  #C7E1BA'>Total</td>
-					<td  style='font-weight: bold;background: white;'>0</td>
-					<td  style='font-weight: bold;background: white;'>0</td>
-					<td  style='font-weight: bold;background: white;'>0</td>
-				</tr>
-			</table>
+					<tr>
+						 <td id="td-line-graph" colspan="2" style="width: 35%;height: 37vh;border: 1px lightblue solid; border-left: none;">
+								Line Graph
+						  </td>
+					</tr>
+				</table>
 		</td>
+	</tr>
+
 	<tr>
+		<td colspan="2" style="width: 100%;" >
+			<table style="width: 100%;" >
+					<tr>
+						<td class="bottom-widgets">
+						 	Widget A
+						</td>
+						<td class="bottom-widgets">
+						 	Widget B
+						</td>
+						<td class="bottom-widgets">
+						 	Widget C
+						</td>
+						<td class="bottom-widgets">
+						 	Widget D
+						</td>
+					</tr>
+				</table>
+		<td>
+	</tr>
 <table>
+
+<script>
+
+
+ connections = {};
+    durations = {};
+    radius = {};
+    var refPoints = [-9.6, -17.4, 33.05, 35.98];
+    var offsets = [10, 295, 10, 710];
+    var up = 0;
+    var down = 0;
+    
+    function latLon2Coord(lat, lon) {
+
+        var x, y;
+
+        x = ((offsets[1] - offsets[0]) * ((Math.abs(lon) - Math.abs(refPoints[2])) / (Math.abs(refPoints[3]) - Math.abs(refPoints[2]))))// + offsets[0];
+
+        y = ((offsets[3] - offsets[2]) * ((Math.abs(lat) - Math.abs(refPoints[0])) / (Math.abs(refPoints[1]) - Math.abs(refPoints[0]))))// + offsets[2];
+
+        return [x, y]
+
+    }
+
+    function insertSiteByOffset(x, y, color, id, district, village) {
+
+        var doc = __$("district").contentDocument;
+
+        var mw = doc.getElementById(district);
+
+        var target = districtOffsets[district];
+
+        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+
+        circle.setAttribute("cx", (x - target.x));
+        circle.setAttribute("cy", (y - target.y));
+
+        var r = 0.11;
+        var p = 0;
+        if(radius[village.replace(/\s+/g, '_').toLowerCase()]) {
+            r = radius[village.replace(/\s+/g, '_').toLowerCase()][0];
+            p = radius[village.replace(/\s+/g, '_').toLowerCase()][1]
+        }
+
+        if(r < 0.11){
+            r = 0.11
+        }
+
+        circle.setAttribute("r", r);
+        circle.setAttribute("id", id);
+        circle.setAttribute("fill", color);
+        circle.setAttribute("stroke-width", 0.025);
+        circle.setAttribute("stroke", "rgba(0,0,0,0.7)");
+        circle.setAttribute("data-tooltip", village);
+        var v = village.split(/\__/);
+        v = v[v.length -1 ].replace(/\_/, " ");
+        circle.setAttribute("title", v.capitalize());
+
+        circle.onmouseover = function(){
+           __$("village_label").innerHTML = v.capitalize() + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; " + p + " resident(s)";
+        };
+
+        circle.onmouseout = function(){
+            __$("village_label").innerHTML = "&nbsp;";
+        }
+
+        mw.appendChild(circle);
+
+    }
+
+    function insertSiteMarkerByOffset(x, y, color, id, district, village) {
+
+        var doc = __$("district").contentDocument;
+        var mw = doc.getElementById(district);
+        var target = districtOffsets[district];
+
+        var svgimg = document.createElementNS('http://www.w3.org/2000/svg','image');
+        svgimg.setAttribute('height','2');
+        svgimg.setAttribute('width','2');
+        svgimg.setAttribute('z-index','2000');
+        svgimg.setAttribute('id', ("pin-" + id));
+        svgimg.setAttribute("visibility", "hidden");
+        svgimg.setAttributeNS('http://www.w3.org/1999/xlink','href','pin.svg');
+        svgimg.setAttribute('x',(x - 1.02*target.x));
+        svgimg.setAttribute('y',(y - 1.005*target.y));
+        mw.appendChild(svgimg);
+    }
+
+    function loadDistrictSitesByOffsets(district) {
+
+        var target = sites_by_zones[district];
+
+        for (var i = 0; i < target.length; i++) {
+
+            var result = latLon2Coord(target[i]["latitude"], target[i]["longitude"])
+
+            var colors = ["rgba(255,0,0,0.6)", "rgba(0,200,0,0.6)", "rgba(0,0,200,0.6)"];
+            var vg = district.toLowerCase().replace(/\s/g, '_') + "__mtema__" +target[i]['village'].replace(/\s/g, '_').toLowerCase();
+
+            if (!radius[vg]){
+               // continue;
+            }
+
+            if(connections[vg]) {
+                var pos = 1;
+                up += 1;
+            }else{
+                var pos = 0;
+                down += 1;
+            }
+
+            insertSiteByOffset((result[0] + 0.4), result[1], colors[pos], district + '_' + target[i]["facility_id"], district, vg);
+
+        }
+
+    }
+
+    function loadDistrictSitesMarkerByOffsets(district) {
+
+        var target = sites_by_zones[district];
+
+        for (var i = 0; i < target.length; i++) {
+
+            var result = latLon2Coord(target[i]["latitude"], target[i]["longitude"])
+
+            var colors = ["rgba(255,0,0,0.7)", "rgba(0,200,0,0.7)", "rgba(0,0,200,0.7)"];
+
+            var vg = district.toLowerCase().replace(/\s/g, '_') + "__mtema__" +target[i]['village'].replace(/\s/g, '_').toLowerCase();
+
+            if(connections[vg]) {
+                var pos = 1;
+            }else{
+                var pos = 0;
+            }
+
+            insertSiteMarkerByOffset((result[0] + 0.4), result[1], colors[pos], district + '_' + target[i]["facility_id"], district, vg);
+
+        }
+
+    }
+
+
+
+    function drawBoundaries(district){
+        for(var i = 0; i < mtema_coordinates.length; i++){
+            var result = latLon2Coord((mtema_coordinates[i][1]),(mtema_coordinates[i][0]));
+            var x = result[0];
+            var y = result[1];
+            var doc = __$("district").contentDocument;
+            var mw = doc.getElementById(district);
+            var target = districtOffsets[district];
+            var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+
+            circle.setAttribute("cx", (x - target.x));
+            circle.setAttribute("cy", (y - target.y));
+            circle.setAttribute("r", "0.03");
+            circle.setAttribute("fill", "black");
+            circle.setAttribute("stroke-width", 0.0005);
+            circle.setAttribute("stroke", "rgba(0,0,0,0.7)");
+            mw.appendChild(circle);
+        }
+    }
+
+    setTimeout(function () {
+    	
+	drawBoundaries("lilongwe");
+
+	//loadSiteConnections("lilongwe");
+
+    }, 500);
+
+</script>
+</html>

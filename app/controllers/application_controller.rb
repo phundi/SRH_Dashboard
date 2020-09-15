@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   #before_filter :check_user, :except => ['logout', 'login']
-
+  before_filter :check_tab
   def check_user
     if params[:active_tab].present?
       session[:active_tab] = params[:active_tab]
@@ -24,5 +24,9 @@ class ApplicationController < ActionController::Base
     end
 
     yes
+  end
+
+  def check_tab
+	session[:active_tab] = params[:controller]
   end
 end

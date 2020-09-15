@@ -1,6 +1,7 @@
 class UserController < ApplicationController
   def index
-    @users = User.all.order(:username)
+    #@users = User.all.order(:username)
+	render :template => "blank"
   end
 
   def new
