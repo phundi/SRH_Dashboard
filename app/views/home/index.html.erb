@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 	<html>
 
-    <script src="data/mtema_boundary.js"></script>
+  <script src="data/malawi_zambia_boundary.js"></script>
   <script src="data/sites.js"></script>
   <script src="data/district_offsets.js"></script>
   <script src="/js/plugins/flot/jquery.flot.js"></script>
   <script src="/js/plugins/flot/jquery.flot.pie.js"></script>
   <script src="/js/plugins/flot/excanvas.min.js"></script>
+  <script src="/js/d3.min.js"></script>
 
 
 <style>
@@ -29,9 +30,9 @@
 		 <td id="td-map" style="width: 35%;height: 72vh;border: 1px solid lightblue;">
 			 <div id="c_district"   style="width: 100%; height: 72vh; text-align: center; float: right; margin-top: auto;">	
 			  
-				<object id="district" type="image/svg+xml" data="images/mw/ll_north.svg"
+				<canvas id="district" width="600" height="800"
 					  style="height: 96%; width: 96%;float: left; border: none;margin: 8px;margin-top: 1.5%;">				
-				</object>
+				</canvas>
 
 			   </div>		
 		  </td>
@@ -84,164 +85,33 @@
 <script>
 
 
-	connections = {};
-    durations = {};
-    radius = {};
-    var refPoints = [-9.6, -17.4, 33.05, 35.98];
-    var offsets = [10, 295, 10, 710];
-    var up = 0;
-    var down = 0;
-    
-    function latLon2Coord(lat, lon) {
+    function drawBoundaries(){
+			var context = d3.select('#district')
+				.node()
+				.getContext('2d');
 
-        var x, y;
+			var projection = d3.geoEquirectangular()
+				.scale(2450)
+				.translate([-935, -200]);
 
-        x = ((offsets[1] - offsets[0]) * ((Math.abs(lon) - Math.abs(refPoints[2])) / (Math.abs(refPoints[3]) - Math.abs(refPoints[2]))))// + offsets[0];
+			var geoGenerator = d3.geoPath()
+				.projection(projection)
+				.context(context);
 
-        y = ((offsets[3] - offsets[2]) * ((Math.abs(lat) - Math.abs(refPoints[0])) / (Math.abs(refPoints[1]) - Math.abs(refPoints[0]))))// + offsets[2];
+			function update(geojson) {
+				context.lineWidth = 1.5;
+				context.strokeStyle = '#3399CC';
 
-        return [x, y]
+				context.beginPath();
+				geoGenerator({type: 'FeatureCollection', features: geojson.features})
+				context.stroke();
+			}
 
-    }
-
-    function insertSiteByOffset(x, y, color, id, district, village) {
-
-        var doc = __$("district").contentDocument;
-
-        var mw = doc.getElementById(district);
-
-        var target = districtOffsets[district];
-
-        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-
-        circle.setAttribute("cx", (x - target.x));
-        circle.setAttribute("cy", (y - target.y));
-
-        var r = 0.11;
-        var p = 0;
-        if(radius[village.replace(/\s+/g, '_').toLowerCase()]) {
-            r = radius[village.replace(/\s+/g, '_').toLowerCase()][0];
-            p = radius[village.replace(/\s+/g, '_').toLowerCase()][1]
-        }
-
-        if(r < 0.11){
-            r = 0.11
-        }
-
-        circle.setAttribute("r", r);
-        circle.setAttribute("id", id);
-        circle.setAttribute("fill", color);
-        circle.setAttribute("stroke-width", 0.025);
-        circle.setAttribute("stroke", "rgba(0,0,0,0.7)");
-        circle.setAttribute("data-tooltip", village);
-        var v = village.split(/\__/);
-        v = v[v.length -1 ].replace(/\_/, " ");
-        circle.setAttribute("title", v.capitalize());
-
-        circle.onmouseover = function(){
-           __$("village_label").innerHTML = v.capitalize() + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; " + p + " resident(s)";
-        };
-
-        circle.onmouseout = function(){
-            __$("village_label").innerHTML = "&nbsp;";
-        }
-
-        mw.appendChild(circle);
-
-    }
-
-    function insertSiteMarkerByOffset(x, y, color, id, district, village) {
-
-        var doc = __$("district").contentDocument;
-        var mw = doc.getElementById(district);
-        var target = districtOffsets[district];
-
-        var svgimg = document.createElementNS('http://www.w3.org/2000/svg','image');
-        svgimg.setAttribute('height','2');
-        svgimg.setAttribute('width','2');
-        svgimg.setAttribute('z-index','2000');
-        svgimg.setAttribute('id', ("pin-" + id));
-        svgimg.setAttribute("visibility", "hidden");
-        svgimg.setAttributeNS('http://www.w3.org/1999/xlink','href','pin.svg');
-        svgimg.setAttribute('x',(x - 1.02*target.x));
-        svgimg.setAttribute('y',(y - 1.005*target.y));
-        mw.appendChild(svgimg);
-    }
-
-    function loadDistrictSitesByOffsets(district) {
-
-        var target = sites_by_zones[district];
-
-        for (var i = 0; i < target.length; i++) {
-
-            var result = latLon2Coord(target[i]["latitude"], target[i]["longitude"])
-
-            var colors = ["rgba(255,0,0,0.6)", "rgba(0,200,0,0.6)", "rgba(0,0,200,0.6)"];
-            var vg = district.toLowerCase().replace(/\s/g, '_') + "__mtema__" +target[i]['village'].replace(/\s/g, '_').toLowerCase();
-
-            if (!radius[vg]){
-               // continue;
-            }
-
-            if(connections[vg]) {
-                var pos = 1;
-                up += 1;
-            }else{
-                var pos = 0;
-                down += 1;
-            }
-
-            insertSiteByOffset((result[0] + 0.4), result[1], colors[pos], district + '_' + target[i]["facility_id"], district, vg);
-
-        }
-
-    }
-
-    function loadDistrictSitesMarkerByOffsets(district) {
-
-        var target = sites_by_zones[district];
-
-        for (var i = 0; i < target.length; i++) {
-
-            var result = latLon2Coord(target[i]["latitude"], target[i]["longitude"])
-
-            var colors = ["rgba(255,0,0,0.7)", "rgba(0,200,0,0.7)", "rgba(0,0,200,0.7)"];
-
-            var vg = district.toLowerCase().replace(/\s/g, '_') + "__mtema__" +target[i]['village'].replace(/\s/g, '_').toLowerCase();
-
-            if(connections[vg]) {
-                var pos = 1;
-            }else{
-                var pos = 0;
-            }
-
-            insertSiteMarkerByOffset((result[0] + 0.4), result[1], colors[pos], district + '_' + target[i]["facility_id"], district, vg);
-
-        }
-
-    }
+			update(geojson);
+			update(geojsonFacilities)
+		}		
 
 
-
-    function drawBoundaries(district){
-        for(var i = 0; i < mtema_coordinates.length; i++){
-            var result = latLon2Coord((mtema_coordinates[i][1]),(mtema_coordinates[i][0]));
-            var x = result[0];
-            var y = result[1];
-            var doc = __$("district").contentDocument;
-            var mw = doc.getElementById(district);
-            var target = districtOffsets[district];
-            var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-
-            circle.setAttribute("cx", (x - target.x));
-            circle.setAttribute("cy", (y - target.y));
-            circle.setAttribute("r", "0.03");
-            circle.setAttribute("fill", "black");
-            circle.setAttribute("stroke-width", 0.0005);
-            circle.setAttribute("stroke", "rgba(0,0,0,0.7)");
-            mw.appendChild(circle);
-        }
-    }
 
         //Initialize and build dataSet for pie Chart
 		var dataSetPie = [
@@ -353,7 +223,7 @@
             var l = plotLineChart(datasetL);
             
             setTimeout(function(){
-                drawBoundaries("lilongwe");
+                drawBoundaries();
             }, 250)
             
             for(var i = 0; i < 3; i++){
