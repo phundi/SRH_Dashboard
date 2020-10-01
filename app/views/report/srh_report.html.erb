@@ -81,12 +81,12 @@
 			<table id="controls">
 				<tr>
 					<td>
-						<div class=" btn-controls btn btn-primary btn-md">
+						<div class=" btn-controls btn btn-primary btn-md" onmousedown="buildReport()" >
 							Generate Report
 						</div>
 					</td>
 					<td>
-						<div class="btn-controls btn btn-primary btn-md">
+						<div class="btn-controls btn btn-primary btn-md" onmousedown="exportCSV()">
 							Download CSV
 						</div>
 					</td>
@@ -101,7 +101,7 @@
 			</label>
 		</td>
 		<td class="td-ctrl" >
-			<select id="ou-select" >
+			<select id="ou-select" onchange="updateOU(this);" >
 				<option>All</option>
 				<option value"Test Health Center">Test Health Center</option>
 				<option value"Test Health Center 2">Test Health Center 2</option>
@@ -116,7 +116,7 @@
 			</label>
 		</td>
 		<td class="td-ctrl" >
-		 <select id="ca-select" style="width: 100%;">
+		 <select id="ca-select" style="width: 100%;" onchange="updateChangeAgent(this)">
 				<option>All</option>
 				<option value"Change Agent 1">Change Agent 1</option>
 				<option value"Change Agent 2">Change Agent 2</option>
@@ -138,31 +138,35 @@
 		<tr>
 
 		<% @indicators.each_with_index do |indicator, i|
+		@breakdown = @data[indicator]
 	 %>
 			<tr>
 				<td><%= (i + 1)%></td>
 				<td style="font-weight: bold;"><%= indicator%></td>
-				<td class="value"><%= 0%></td>		
+				<td class="value" id="<%=indicator%>"><%= "?"%></td>		
 			</tr>
 
-				<% @breakdown.each do |category, gender|%>
+				<% @breakdown.each do |category, gender|
+					gender = gender["Gender"]
+					%>
 						<tr>
 							<td>&nbsp;</td>
 							<td style="font-weight: bold;"><%= category%></td>
-							<td class="value"><%= 0%></td>		
+							<td class="value" id="<%=indicator%>-<%=category%>" ><%= "?"%></td>		
 						<tr>
-						<% gender.each do |g, age_breakdown| %>
+						<% gender.each do |g, age_breakdown| 
+%>	
 							<tr>
 								<td>&nbsp;</td>
 								<td class="left" style="font-weight: bold;"><%= g%></td>
-								<td class="value"><%= 0%></td>		
+								<td class="value" id="<%=indicator%>-<%=category%>-<%=g%>" ><%= "?"%></td>		
 							</tr>
 
 							<% age_breakdown.each do |age_category, age_count|%>
 								<tr>
 									<td>&nbsp;</td>
 									<td class="left"><%= age_category%></td>
-									<td class="value"><%= age_count%></td>		
+									<td class="value"  id="<%=indicator%>-<%=category%>-<%=g%>-<%=age_category%>"  ><%= "?"%></td>		
 								</tr>
 							<% end %>
 						<% end %>
@@ -177,6 +181,10 @@
 <script type="text/javascript">
 		var start_date = moment(). format('DD/MMM/YYYY');
 		var end_date = moment(). format('DD/MMM/YYYY');
+		var ou_id 	= -1;
+		var ou_name = "All";
+		var change_agent_id = -1;
+		var change_agent_name = "All";
 
 		$('input[name="daterange"]').daterangepicker(
       {
@@ -186,10 +194,63 @@
       },
 
       function(start, end, label) {
-        console.log('Range: ' + start.format('DD/MMM/YYYY') + ' - ' + end.format('DD/MMM/YYYY'));
+				start_date = start.format('DD/MMM/YYYY');
+				end_date  =  end.format('DD/MMM/YYYY');
+
+        console.log('Range: ' + start_date + ' - ' + end_date);
       }
 
     );
+		
+		function updateOU(node){
+			ou_id = node.value;
+			ou_name = node.value;			
+		}
+		
+		function updateChangeAgent(node){
+			change_agent_id = node.value;
+			change_agent_name = node.value;
+		}
+
+		function buildReport(){
+
+				var url = "ajax_srh_report?start_date=" + start_date + "&end_date=" + end_date
+				url = url + "&ou_id=" + ou_id + "&ou_name=" + ou_name
+				url = url + "&change_agent_id=" + change_agent_id + "&change_agent_name=" + change_agent_name 
+
+				jQuery.ajax({
+					url: url,
+					success: function(data){
+						data = JSON.parse(data);
+						//console.log(data);
+			
+						updateReport(data);
+					}
+				})			
+		}
+
+		function updateReport(data){
+
+			for(var indicator in data){
+
+				categories = data[indicator];
+				//indicator_total = hashSum(categories);
+				for (var category in categories){
+
+					genders = categories[category]["Gender"];
+					//category_total = hashSum(genders);
+					for(var gender in genders){
+						
+						ages = genders[gender];
+						//genders_total = hashSum(ages)
+						for(var age in ages){
+							
+							__$([indicator, category, gender, age].join("-")).innerHTML = ages[age];
+						}					
+					}
+				}
+			}
+		}
 
 		jQuery(".input-mini").attr("disabled", true);
 
