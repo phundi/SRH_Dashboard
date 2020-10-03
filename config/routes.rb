@@ -10,4 +10,5 @@ Rails.application.routes.draw do
   get 'user/index'
 	get 'report/srh_report'
 	get 'report/ajax_srh_report'
+	get 'report/ajax_ou_users'
 end

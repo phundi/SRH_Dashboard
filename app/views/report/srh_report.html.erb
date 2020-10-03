@@ -12,11 +12,11 @@
 	}
 
 	#filters input, #filters select{
-		padding: 5px;
+		padding: 8px;
 		margin: 3px;
 		border-radius: 1px;
 		border: 1px solid lightblue;
-		font-size: 1.1em;
+		font-size: 1.25em;
 		font-weight: bold;
 		color: darkslategray;
 	}
@@ -51,10 +51,12 @@
 			text-align: right;
 		}
 
-		.value{
-			font-weight: bold;
-			text-align: center;
-		}
+	.value{
+		font-weight: bold;
+		text-align: center;
+	}
+
+
 </style>
 
 <table style="width: 100%;" >
@@ -67,9 +69,9 @@
 		</td>
 	</tr>
 </table>
-<table id="filters" style="width: 60%;margin: auto;margin-top: 1vh;border: 1px solid ghostwhite;">
+<table id="filters" style="width: 70%;margin: auto;margin-top: 1vh;border: 1px solid ghostwhite;">
 	<tr>
-		<td class="td-filter" style="width: 40%;">
+		<td class="td-filter" style="width: 30%;">
 			<label> 
 				Date Range: 
 			</label>
@@ -101,10 +103,11 @@
 			</label>
 		</td>
 		<td class="td-ctrl" >
-			<select id="ou-select" onchange="updateOU(this);" >
-				<option>All</option>
-				<option value"Test Health Center">Test Health Center</option>
-				<option value"Test Health Center 2">Test Health Center 2</option>
+			<select id="ou-select" onchange="updateOU(this);" placeholder="Select Organisation Unit">
+				<option value=""></option>
+				<%  @organisation_units.each do |ou|%>
+					<option value="<%=ou['id']%>"><%=ou['displayName']%></option>
+				<% end %>
 			</select>
 		</td>
 	</tr>
@@ -117,9 +120,7 @@
 		</td>
 		<td class="td-ctrl" >
 		 <select id="ca-select" style="width: 100%;" onchange="updateChangeAgent(this)">
-				<option>All</option>
-				<option value"Change Agent 1">Change Agent 1</option>
-				<option value"Change Agent 2">Change Agent 2</option>
+				<option value=""></option>
 			</select>
 		</td>
 	</tr>
@@ -204,12 +205,14 @@
 		
 		function updateOU(node){
 			ou_id = node.value;
-			ou_name = node.value;			
+			ou_name = node.options[node.selectedIndex].innerHTML;	
+
+			loadUsers(ou_id);
 		}
 		
 		function updateChangeAgent(node){
-			change_agent_id = node.value;
-			change_agent_name = node.value;
+			change_agent_id = node.options[node.selectedIndex].id;
+			change_agent_name = node.options[node.selectedIndex].value;
 		}
 
 		function buildReport(){
@@ -217,7 +220,6 @@
 				var url = "ajax_srh_report?start_date=" + start_date + "&end_date=" + end_date
 				url = url + "&ou_id=" + ou_id + "&ou_name=" + ou_name
 				url = url + "&change_agent_id=" + change_agent_id + "&change_agent_name=" + change_agent_name 
-
 				jQuery.ajax({
 					url: url,
 					success: function(data){
@@ -233,16 +235,20 @@
 
 			for(var indicator in data){
 
-				categories = data[indicator];
-				//indicator_total = hashSum(categories);
+				var categories = data[indicator];
+				var indicator_total = hashSum(categories, 0);
+				__$([indicator]).innerHTML = indicator_total;
+
 				for (var category in categories){
 
-					genders = categories[category]["Gender"];
-					//category_total = hashSum(genders);
+					var genders = categories[category]["Gender"];
+					var category_total = hashSum(genders, 0);
+					__$([indicator, category].join("-")).innerHTML = category_total;
 					for(var gender in genders){
 						
-						ages = genders[gender];
-						//genders_total = hashSum(ages)
+						var ages = genders[gender];
+						var genders_total = hashSum(ages, 0);
+						__$([indicator, category, gender].join("-")).innerHTML = genders_total;
 						for(var age in ages){
 							
 							__$([indicator, category, gender, age].join("-")).innerHTML = ages[age];
@@ -250,6 +256,52 @@
 					}
 				}
 			}
+		}
+
+		function loadUsers(ou_id){
+			var node = __$("ca-select")
+			var username = node.options[node.selectedIndex].getAttribute("username");
+
+			var ca_url = "ajax_ou_users"
+			ca_url += "?username=" + username + "&org_id=" + ou_id;
+
+			jQuery.ajax(
+				{
+					url: ca_url,
+					success: function(rst){
+						 	var users = JSON.parse(rst)
+							var caNode = __$("ca-select"); 
+							jQuery(caNode).empty();
+							
+							var option = document.createElement("option");								
+							caNode.appendChild(option);
+
+							for(var i=0; i< users.length; i++){
+								var option = document.createElement("option");
+								option.id = users[i]["id"]
+								option.value = users[i]["userCredentials"]["username"]
+								option.setAttribute("firstName", users[i]["firstName"]);
+								option.setAttribute("surname", users[i]["surname"])
+								option.innerHTML = users[i]["firstName"] + " " + users[i]["surname"] + "   (" + users[i]["userCredentials"]["username"] + ")"
+								caNode.appendChild(option);
+							}							
+					}
+				}
+			);
+		}
+
+
+		function hashSum(hash, total){
+
+			for(var k in hash){
+					if (typeof(hash[k]) == "object"){
+						hashSum(hash[k], total);
+					}else{
+						total += hash[k];
+					}
+			}
+
+			return total;
 		}
 
 		jQuery(".input-mini").attr("disabled", true);
