@@ -276,6 +276,9 @@
 		function loadUsers(ou_id){
 			var node = __$("ca-select")
 			var username = node.options[node.selectedIndex].getAttribute("username");
+			if(username == null){
+				username = "";
+			}
 
 			var ca_url = "ajax_ou_users"
 			ca_url += "?username=" + username + "&org_id=" + ou_id;
