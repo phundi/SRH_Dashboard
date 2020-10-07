@@ -57,15 +57,21 @@
 	}
 
 
+ #td-ou, #progress-bar{
+			font-size: 1.5em;font-weight: bold;text-align: center;padding: 7px;
+			padding-right: 35px;border-radius: 0px; border: 1px solid lightblue;text-align: left;
+			background: ghostwhite; color: darkslategray;
+	}
 </style>
 
 <table style="width: 100%;" >
 	<tr>
-		<td id="td-ou" colspan="2" 
-			style='width: 100%;font-size: 1.5em;font-weight: bold;text-align: center;padding: 7px;
-			 padding-right: 35px;border-radius: 0px; border: 1px solid lightblue;text-align: left;
-			background: ghostwhite; color: darkslategray;'>
+		<td id="td-ou"
+			style='width: 45%;border-right: none;'>
 		 	SRH Report
+		</td>
+		<td id="progress-bar" style="width: 55%;font-size: 1.3em;border-left: none;">
+
 		</td>
 	</tr>
 </table>
@@ -180,6 +186,7 @@
 
 
 <script type="text/javascript">
+
 		var start_date = moment(). format('DD/MMM/YYYY');
 		var end_date = moment(). format('DD/MMM/YYYY');
 		var ou_id 	= -1;
@@ -216,6 +223,8 @@
 		}
 
 		function buildReport(){
+	  		__$("progress-bar").style.color = "green";
+				__$("progress-bar").innerHTML = "Building report ..... Please wait!"
 
 				var url = "ajax_srh_report?start_date=" + start_date + "&end_date=" + end_date
 				url = url + "&ou_id=" + ou_id + "&ou_name=" + ou_name
@@ -227,6 +236,12 @@
 						//console.log(data);
 			
 						updateReport(data);
+			  		__$("progress-bar").innerHTML = "&nbsp;";
+						__$("progress-bar").innerHTML = "Success!"
+					},
+					error: function(err){
+			  		__$("progress-bar").style.color = "red";
+					  __$("progress-bar").innerHTML = "Error Building Report!";
 					}
 				})			
 		}
@@ -261,6 +276,9 @@
 		function loadUsers(ou_id){
 			var node = __$("ca-select")
 			var username = node.options[node.selectedIndex].getAttribute("username");
+			if(username == null){
+				username = "";
+			}
 
 			var ca_url = "ajax_ou_users"
 			ca_url += "?username=" + username + "&org_id=" + ou_id;
@@ -292,11 +310,14 @@
 
 
 		function hashSum(hash, total){
-
+			
 			for(var k in hash){
+
 					if (typeof(hash[k]) == "object"){
-						hashSum(hash[k], total);
+
+						total = hashSum(hash[k], total);
 					}else{
+
 						total += hash[k];
 					}
 			}
