@@ -180,6 +180,7 @@
 
 
 <script type="text/javascript">
+
 		var start_date = moment(). format('DD/MMM/YYYY');
 		var end_date = moment(). format('DD/MMM/YYYY');
 		var ou_id 	= -1;
@@ -292,11 +293,14 @@
 
 
 		function hashSum(hash, total){
-
+			
 			for(var k in hash){
+
 					if (typeof(hash[k]) == "object"){
-						hashSum(hash[k], total);
+
+						total = hashSum(hash[k], total);
 					}else{
+
 						total += hash[k];
 					}
 			}
