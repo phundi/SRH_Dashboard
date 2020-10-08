@@ -95,8 +95,8 @@
 						</div>
 					</td>
 					<td>
-						<div class="btn-controls btn btn-primary btn-md" onmousedown="exportCSV()">
-							Download CSV
+						<div class="btn-controls btn btn-primary btn-md" onmousedown="downloadExcel()">
+							Download Excel
 						</div>
 					</td>
 			</table>
@@ -194,6 +194,7 @@
 		var ou_name = "All";
 		var change_agent_id = -1;
 		var change_agent_name = "All";
+		var generated = false;
 
 		$('input[name="daterange"]').daterangepicker(
       {
@@ -240,7 +241,7 @@
 					},
 					error: function(err){
 			  		hideSpinner();
-						//alert("Something went wrong!")
+						alert("Something went wrong!")
 					}
 				})			
 		}
@@ -277,12 +278,15 @@
 					}
 				}
 			}
-
+			
+			//Create a download file
 			jQuery.ajax(
 				{
+					method: "POST",
 					url: "download_excel",
-					data: rows,
+					data: {data: rows},
 					success: function(rst){
+						generated = true;
 						console.log(rst);
 					}
 				}
@@ -369,15 +373,23 @@ function hideSpinner() {
     } 
 }
 
-		jQuery(".input-mini").attr("disabled", true);
+function downloadExcel(){
+	if (generated == true){
+		window.location = "download_excel"
+	}else{
+		alert("Generate Report First")
+	}
+}
 
-		$(document).ready(function(){
-			var table = __$("tbl-data");
-			table.parentNode.removeChild(table);
-			table.style.display = "table"
-			__$("content").appendChild(table);			
-			
-		})
+jQuery(".input-mini").attr("disabled", true);
+
+$(document).ready(function(){
+	var table = __$("tbl-data");
+	table.parentNode.removeChild(table);
+	table.style.display = "table"
+	__$("content").appendChild(table);			
+	
+})
 
 </script>
 </html>
