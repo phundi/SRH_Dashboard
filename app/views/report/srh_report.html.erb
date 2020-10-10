@@ -110,11 +110,8 @@
 			</label>
 		</td>
 		<td class="td-ctrl" >
-			<select id="ou-select" onchange="updateOU(this);" placeholder="Select Organisation Unit">
+			<select id="ou-select" onchange="getOption(this)" onfocus="updateOrgUnit()">
 				<option value=""></option>
-				<%  @organisation_units.each do |ou|%>
-					<option value="<%=ou['id']%>"><%=ou['displayName']%></option>
-				<% end %>
 			</select>
 		</td>
 	</tr>
@@ -126,7 +123,7 @@
 			</label>
 		</td>
 		<td class="td-ctrl" >
-		 <select id="ca-select" style="width: 100%;" onchange="updateChangeAgent(this)">
+		 <select id="ca-select" style="width: 100%;" onchange="changeUserSelectValue(this)">
 				<option value=""></option>
 			</select>
 		</td>
@@ -196,7 +193,7 @@
 		var change_agent_name = "All";
 		var generated = false;
 
-		$('input[name="daterange"]').daterangepicker(
+	$('input[name="daterange"]').daterangepicker(
       {
         format: 'DD/MMM/YYYY',
         startDate: moment(). format('DD/MMM/YYYY'),
@@ -212,13 +209,69 @@
 
     );
 		
-		function updateOU(node){
-			ou_id = node.value;
-			ou_name = node.options[node.selectedIndex].innerHTML;	
+  function updateOrgUnit(){
+			//ou_id = node.value;
+			//ou_name = node.options[node.selectedIndex].innerHTML;	
+			var node = __$("ou-select")
 
-			loadUsers(ou_id);
+			var ou_url = "http://dhisforiom.org:3000/api/system_info/get_org_units/"
+			
+			jQuery.ajax(
+				 {  
+					url: ou_url,
+					success: function(data){
+						
+						 	var organisations = JSON.parse(JSON.stringify(data));
+            
+							var ouNode = __$("ou-select"); 
+							jQuery(ouNode).empty();
+							var option = document.createElement("option");								
+							ouNode.appendChild(option); //blank option
+
+							for(var i=0; i< organisations.length; i++){
+								var option = document.createElement("option");
+								option.id = organisations[i]["id"];
+								//option.onclick = testFunction(this);
+								option.value = organisations[i]["id"];
+								option.innerHTML = organisations[i]["displayName"]; 
+								ouNode.appendChild(option);
+							}							
+					}
+				}
+			);
+
+			//loadUsers(ou_id);
 		}
 		
+		function getOption(t){
+               var val;
+                var options = t.options;
+                for(var i=0,len=options.length;i<len;i++){
+                     var option = options[i];
+                     if(option.selected){
+                         val = option.value;
+						 //change the value of org select field
+                         t.value = option.id;
+						 //now load the users for the org unit
+						 loadUsers(val);
+                      }
+                }
+                //return val;
+         }
+
+	    function changeUserSelectValue(t){
+               var val;
+                var options = t.options;
+                for(var i=0,len=options.length;i<len;i++){
+                     var option = options[i];
+                     if(option.selected){
+                         val = option.value;
+                         t.value = option.id;
+                      }
+                }
+            //return val;
+         } 
+
 		function updateChangeAgent(node){
 			change_agent_id = node.options[node.selectedIndex].id;
 			change_agent_name = node.options[node.selectedIndex].value;
@@ -226,10 +279,12 @@
 
 		function buildReport(){
 	  		showSpinner()
+                var ouID = __$("ou-select").value
+				var username = __$("ca-select").value
 
 				var url = "ajax_srh_report?start_date=" + start_date + "&end_date=" + end_date
-				url = url + "&ou_id=" + ou_id + "&ou_name=" + ou_name
-				url = url + "&change_agent_id=" + change_agent_id + "&change_agent_name=" + change_agent_name 
+				url = url + "&ou_id=" + ouID + "&ou_name=" + ou_name
+				url = url + "&change_agent_id=" + change_agent_id + "&change_agent_name=" + username 
 				jQuery.ajax({
 					url: url,
 					success: function(data){
@@ -293,21 +348,22 @@
 			)
 		}
 
-		function loadUsers(ou_id){
+		function loadUsers(orgID){
 			var node = __$("ca-select")
 			var username = node.options[node.selectedIndex].getAttribute("username");
 			if(username == null){
 				username = "";
 			}
 
-			var ca_url = "ajax_ou_users"
-			ca_url += "?username=" + username + "&org_id=" + ou_id;
-
+			var ca_url = "http://dhisforiom.org:3000/api/system_info/get_users/"
+			if (orgID) {
+			  ca_url += "?org_id=" + orgID;
+			}
 			jQuery.ajax(
-				{
+				 {  
 					url: ca_url,
 					success: function(rst){
-						 	var users = JSON.parse(rst)
+						 	var users = JSON.parse(JSON.stringify(rst));
 							var caNode = __$("ca-select"); 
 							jQuery(caNode).empty();
 							
@@ -316,8 +372,8 @@
 
 							for(var i=0; i< users.length; i++){
 								var option = document.createElement("option");
-								option.id = users[i]["id"]
-								option.value = users[i]["userCredentials"]["username"]
+								option.id = users[i]["userCredentials"]["username"];
+								option.value = users[i]["userCredentials"]["username"];
 								option.setAttribute("firstName", users[i]["firstName"]);
 								option.setAttribute("surname", users[i]["surname"])
 								option.innerHTML = users[i]["firstName"] + " " + users[i]["surname"] + "   (" + users[i]["userCredentials"]["username"] + ")"

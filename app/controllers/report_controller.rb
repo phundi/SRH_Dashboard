@@ -5,7 +5,7 @@ class ReportController < ApplicationController
 		@reports = [
 				["SRH Report", "/report/srh_report"], 
 				["User Audit Report", "/report/user_audit_report"],
-				["Report X", "/report/report_x"] 
+				["Travellers Report", "/report/report_x"] 
 			]
 
   end 
