@@ -13,4 +13,7 @@ Rails.application.routes.draw do
 	get 'report/ajax_ou_users'
 	get 'report/download_excel'
 	post 'report/download_excel'
+	get 'report/user_audit_report'
+	get 'report/download_user_audit_excel'
+	post 'report/download_user_audit_excel'
 end
