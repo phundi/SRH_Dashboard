@@ -23,10 +23,6 @@ class ReportController < ApplicationController
 
  def user_audit_report
 		
-		srh_ou_link = YAML.load_file("#{Rails.root}/config/settings.yml")["srh_ou_link"]
-		json_data = RestClient::Request.execute(:method => :get, :url => srh_ou_link, :timeout => 1000, :open_timeout => 1000) rescue nil
-		@organisation_units = JSON.parse(json_data) rescue []
-
 		File.delete("user_audit_report.xlsx") if File.exists? "user_audit_report.xlsx"
   end
 
@@ -95,6 +91,44 @@ class ReportController < ApplicationController
 
 	  	send_file("srh_report.xlsx")
 		end		
+	end
+
+	def download_user_audit_excel
+
+		if request.post?
+			Axlsx::Package.new do |p|
+
+				p.workbook.add_worksheet(:name => "User Audit Report") do |sheet|
+
+					sheet.add_row ["#", "USERNAME", "FIRST NAME", "LAST NAME", "MALES", "FEMALES", "TOTAL"], :style => p.workbook.styles.add_style({:alignment => {:horizontal => :left, :vertical => :center, :wrap_text => true}, 
+																																								:b => true, 
+																																								:bg_color => "E7E7E7", 
+																																								:sz => 13})						
+					#Adding data values in sheet
+					params[:data].each do |index, d|
+
+							sheet.add_row [d[0], d[1], d[2], d[3], d[4], d[5], d[6]], :height => 20, :style => p.workbook.styles.add_style({:alignment => {:horizontal => :left, :wrap_text => true}, 
+																																								:sz => 12}  )																
+					end											
+				end
+
+				p.serialize('user_audit_report.xlsx')		
+			end
+			render :text => true and return
+		else
+
+	  	send_file("user_audit_report.xlsx")
+		end		
+	end
+
+	def ajax_user_audit_report
+		
+		user_audit_report_link = YAML.load_file("#{Rails.root}/config/settings.yml")["user_audit_link"]
+		url = user_audit_report_link + "?org_unit_id=#{params[:ou_id]}&start_date=#{params[:start_date].to_date.to_s(:db)}&end_date=#{params[:end_date].to_date.to_s(:db)}"
+
+		puts url
+		json_data = RestClient::Request.execute(:method => :get, :url => url, :timeout => 1000, :open_timeout => 1000)
+		render :text => json_data
 	end
 end
 

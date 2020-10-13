@@ -49,7 +49,7 @@
 	}
 
 	.left{
-			text-align: right;
+			text-align: left;
 		}
 
 	.value{
@@ -62,6 +62,11 @@
 			font-size: 1.5em;font-weight: bold;text-align: center;padding: 7px;
 			padding-right: 35px;border-radius: 0px; border: 1px solid lightblue;text-align: left;
 			background: ghostwhite; color: darkslategray;
+	}
+
+	.clone-tr td{
+		border: 1px solid lightgray;
+		background: ghostwhite;
 	}
 </style>
 
@@ -110,8 +115,8 @@
 			</label>
 		</td>
 		<td class="td-ctrl" >
-			<select id="ou-select" onchange="getOption(this)" onfocus="updateOrgUnit()">
-				<option value=""></option>egor
+			<select id="ou-select" onfocus="updateOrgUnit()">
+				<option value=""></option>
 			</select>
 		</td>
 	</tr>
@@ -124,15 +129,23 @@
 		style="overflow: auto;width: 90%; margin: auto; margin-top: 10px;
  color: darkslategray; display: none;">
 		<tr>
-			<th style="width: 10%">#</th>
-			<th style="width: 45%;padding-left: 30px;">INDICATOR</th>
-			<th style="width: 45%; text-align: center;">TOTAL</th>		
+			<th style="width: 5%">#</th>
+			<th style="width: 15%;padding-left: 30px;">USERNAME</th>
+			<th style="width: 20%; text-align: center;">FIRST NAME</th>		
+			<th style="width: 20%; text-align: center;">LAST NAME</th>	
+			<th style="width: 12.5%; text-align: center;">MALES</th>		
+			<th style="width: 12.5%; text-align: center;">FEMALES</th>	
+			<th style="width: 12.5%; text-align: center;">TOTAL</th>						
 		<tr>
 
-			<tr>
-				<td>&nbsp;</td>
-				<td class="left">&nbsp;</td>
-				<td class="value">&nbsp;</td>		
+			<tr id="cloneMe">
+				<td class="index" >&nbsp;</td>
+				<td class="right username">&nbsp;</td>
+				<td class="right fname">&nbsp;</td>
+				<td class="right lname">&nbsp;</td>
+				<td class="value males">&nbsp;</td>
+				<td class="value females">&nbsp;</td>		
+				<td class="value total">&nbsp;</td>		
 			</tr>		
 
 	</table>
@@ -197,7 +210,6 @@
 				}
 			);
 
-			//loadUsers(ou_id);
 		}
 		
 		function getOption(t){
@@ -210,7 +222,6 @@
 						 //change the value of org select field
                          t.value = option.id;
 						 //now load the users for the org unit
-						 loadUsers(val);
                       }
                 }
                 //return val;
@@ -229,73 +240,70 @@
             //return val;
          } 
 
-		function updateChangeAgent(node){
-			change_agent_id = node.options[node.selectedIndex].id;
-			change_agent_name = node.options[node.selectedIndex].value;
-		}
-
 		function buildReport(){
 	  		showSpinner()
-                var ouID = __$("ou-select").value
-				var username = __$("ca-select").value
+        var ouID = __$("ou-select").value
 
-				var url = "ajax_srh_report?start_date=" + start_date + "&end_date=" + end_date
-				url = url + "&ou_id=" + ouID + "&ou_name=" + ou_name
-				url = url + "&change_agent_id=" + change_agent_id + "&change_agent_name=" + username 
+				var url = "ajax_user_audit_report?start_date=" + start_date + "&end_date=" + end_date
+				url = url + "&ou_id=" + ouID;
+
 				jQuery.ajax({
 					url: url,
 					success: function(data){
 						data = JSON.parse(data);
 						//console.log(data);
-			
-						updateReport(data);
+						if(data && data.error == 'no data found' ){
+							jQuery(".clone-tr").remove();
+							alert("No data found !!")
+						}else{
+							updateReport(data);
+						}
 			  		hideSpinner();
 					},
 					error: function(err){
 			  		hideSpinner();
+						jQuery(".clone-tr").remove();
 						alert("Something went wrong!")
 					}
 				})			
 		}
 
 		function updateReport(data){
-			
+		  jQuery("#cloneMe").hide()
+			jQuery(".clone-tr").remove();
+
 			var rows = [];
-			for(var indicator in data){
+			for(var index in data){
 
-				var categories = data[indicator];
-				var indicator_total = hashSum(categories, 0);
-				__$([indicator]).innerHTML = indicator_total;
-			  rows.push([indicator, indicator_total, "indicator"]);			
+				var clone = __$("cloneMe").cloneNode(true);
+				clone.getElementsByClassName("index")[0].innerHTML = (parseInt(index) + 1);
+				clone.getElementsByClassName("username")[0].innerHTML = data[index].Username;
+				clone.getElementsByClassName("fname")[0].innerHTML = data[index].Firstname;
+				clone.getElementsByClassName("lname")[0].innerHTML = data[index].Lastname;
+				clone.getElementsByClassName("males")[0].innerHTML = data[index].Males;
+				clone.getElementsByClassName("females")[0].innerHTML = data[index].Females;
+				clone.getElementsByClassName("total")[0].innerHTML = data[index].Total;
+				clone.id = data[index].Username;
+				clone.className = clone.className + " clone-tr";
+				__$("tbl-data").appendChild(clone);
 
-				for (var category in categories){
-
-					var genders = categories[category]["Gender"];
-					var category_total = hashSum(genders, 0);
-					__$([indicator, category].join("-")).innerHTML = category_total;
-					rows.push([category, category_total, "category"])
-
-					for(var gender in genders){
-						
-						var ages = genders[gender];
-						var genders_total = hashSum(ages, 0);
-						__$([indicator, category, gender].join("-")).innerHTML = genders_total;
-						rows.push([gender, genders_total, "gender"]);
-
-						for(var age in ages){
-							
-							__$([indicator, category, gender, age].join("-")).innerHTML = ages[age];
-							rows.push([age, ages[age], "age"])
-						}					
-					}
-				}
+				rows.push([
+						(parseInt(index) + 1),
+						data[index].Username,
+						data[index].Firstname,
+						data[index].Lastname,
+						data[index].Males,
+						data[index].Females,
+						data[index].Total
+				])
+				jQuery(clone).show();
 			}
 			
 			//Create a download file
 			jQuery.ajax(
 				{
 					method: "POST",
-					url: "download_excel",
+					url: "download_user_audit_excel",
 					data: {data: rows},
 					success: function(rst){
 						generated = true;
@@ -303,59 +311,6 @@
 					}
 				}
 			)
-		}
-
-		function loadUsers(orgID){
-			var node = __$("ca-select")
-			var username = node.options[node.selectedIndex].getAttribute("username");
-			if(username == null){
-				username = "";
-			}
-
-			var ca_url = "http://dhisforiom.org:3000/api/system_info/get_users/"
-			if (orgID) {
-			  ca_url += "?org_id=" + orgID;
-			}
-			jQuery.ajax(
-				 {  
-					url: ca_url,
-					success: function(rst){
-						 	var users = JSON.parse(JSON.stringify(rst));
-							var caNode = __$("ca-select"); 
-							jQuery(caNode).empty();
-							
-							var option = document.createElement("option");								
-							caNode.appendChild(option);
-
-							for(var i=0; i< users.length; i++){
-								var option = document.createElement("option");
-								option.id = users[i]["userCredentials"]["username"];
-								option.value = users[i]["userCredentials"]["username"];
-								option.setAttribute("firstName", users[i]["firstName"]);
-								option.setAttribute("surname", users[i]["surname"])
-								option.innerHTML = users[i]["firstName"] + " " + users[i]["surname"] + "   (" + users[i]["userCredentials"]["username"] + ")"
-								caNode.appendChild(option);
-							}							
-					}
-				}
-			);
-		}
-
-
-		function hashSum(hash, total){
-			
-			for(var k in hash){
-
-					if (typeof(hash[k]) == "object"){
-
-						total = hashSum(hash[k], total);
-					}else{
-
-						total += hash[k];
-					}
-			}
-
-			return total;
 		}
 
 var spinner;
@@ -388,7 +343,7 @@ function hideSpinner() {
 
 function downloadExcel(){
 	if (generated == true){
-		window.location = "download_excel"
+		window.location = "download_user_audit_excel"
 	}else{
 		alert("Generate Report First")
 	}
