@@ -21,6 +21,15 @@ class ReportController < ApplicationController
 		File.delete("srh_report.xlsx") if File.exists? "srh_report.xlsx"
   end
 
+ def user_audit_report
+		
+		srh_ou_link = YAML.load_file("#{Rails.root}/config/settings.yml")["srh_ou_link"]
+		json_data = RestClient::Request.execute(:method => :get, :url => srh_ou_link, :timeout => 1000, :open_timeout => 1000) rescue nil
+		@organisation_units = JSON.parse(json_data) rescue []
+
+		File.delete("user_audit_report.xlsx") if File.exists? "user_audit_report.xlsx"
+  end
+
 	def ajax_srh_report
 		
 		srh_report_link = YAML.load_file("#{Rails.root}/config/settings.yml")["srh_report_link"]
