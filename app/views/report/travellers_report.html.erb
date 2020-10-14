@@ -74,7 +74,7 @@
 	<tr>
 		<td id="td-ou"
 			style='width: 45%;border-right: none;'>
-		 	User Audit Report
+		 	Travellers Report
 		</td>
 		<td id="progress-bar" style="width: 55%;font-size: 1.3em;border-left: none;">
 
@@ -130,22 +130,14 @@
  color: darkslategray; display: none;">
 		<tr>
 			<th style="width: 5%">#</th>
-			<th style="width: 15%;padding-left: 30px;">USERNAME</th>
-			<th style="width: 20%; text-align: center;">FIRST NAME</th>		
-			<th style="width: 20%; text-align: center;">LAST NAME</th>	
-			<th style="width: 12.5%; text-align: center;">MALES</th>		
-			<th style="width: 12.5%; text-align: center;">FEMALES</th>	
-			<th style="width: 12.5%; text-align: center;">TOTAL</th>						
+			<th style="width: 15%;padding-left: 30px;">CATEGORY</th>
+			<th style="width: 20%; text-align: center;">TOTAL</th>								
 		<tr>
 
 			<tr id="cloneMe">
 				<td class="index" >&nbsp;</td>
-				<td class="right username">&nbsp;</td>
-				<td class="right fname">&nbsp;</td>
-				<td class="right lname">&nbsp;</td>
-				<td class="value males">&nbsp;</td>
-				<td class="value females">&nbsp;</td>		
-				<td class="value total">&nbsp;</td>		
+				<td class="right category">&nbsp;</td>
+				<td class="value total">&nbsp;</td>				
 			</tr>		
 
 	</table>
@@ -242,16 +234,16 @@
 
 		function buildReport(){
 	  		showSpinner()
-        var ouID = __$("ou-select").value
+        	var ouID = __$("ou-select").value
 
-				var url = "ajax_user_audit_report?start_date=" + start_date + "&end_date=" + end_date
+				var url = "ajax_travellers_report?start_date=" + start_date + "&end_date=" + end_date
 				url = url + "&ou_id=" + ouID;
 
 				jQuery.ajax({
 					url: url,
 					success: function(data){
 						data = JSON.parse(data);
-						console.log(data);
+						//console.log(data);
 						if(data && data.error == 'no data found' ){
 							jQuery(".clone-tr").remove();
 							alert("No data found !!")
@@ -273,37 +265,31 @@
 			jQuery(".clone-tr").remove();
 
 			var rows = [];
-			for(var index in data){
-
+			var i = 1;
+			for(var key in data){
 				var clone = __$("cloneMe").cloneNode(true);
-				clone.getElementsByClassName("index")[0].innerHTML = (parseInt(index) + 1);
-				clone.getElementsByClassName("username")[0].innerHTML = data[index].Username;
-				clone.getElementsByClassName("fname")[0].innerHTML = data[index].Firstname;
-				clone.getElementsByClassName("lname")[0].innerHTML = data[index].Lastname;
-				clone.getElementsByClassName("males")[0].innerHTML = data[index].Males;
-				clone.getElementsByClassName("females")[0].innerHTML = data[index].Females;
-				clone.getElementsByClassName("total")[0].innerHTML = data[index].Total;
-				clone.id = data[index].Username;
+				clone.getElementsByClassName("index")[0].innerHTML = i;
+				clone.getElementsByClassName("category")[0].innerHTML = key;
+				clone.getElementsByClassName("total")[0].innerHTML = data[key];
+				clone.id = key;
 				clone.className = clone.className + " clone-tr";
 				__$("tbl-data").appendChild(clone);
 
 				rows.push([
-						(parseInt(index) + 1),
-						data[index].Username,
-						data[index].Firstname,
-						data[index].Lastname,
-						data[index].Males,
-						data[index].Females,
-						data[index].Total
+						i,
+						key,						
+						data[key]
 				])
 				jQuery(clone).show();
+
+				i+= 1;
 			}
 			
 			//Create a download file
 			jQuery.ajax(
 				{
 					method: "POST",
-					url: "download_user_audit_excel",
+					url: "download_travellers_excel",
 					data: {data: rows},
 					success: function(rst){
 						generated = true;
@@ -343,7 +329,7 @@ function hideSpinner() {
 
 function downloadExcel(){
 	if (generated == true){
-		window.location = "download_user_audit_excel"
+		window.location = "download_travellers_excel"
 	}else{
 		alert("Generate Report First")
 	}

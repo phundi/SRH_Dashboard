@@ -2,3 +2,4 @@ srh_report_link: http://dhisforiom.org:3000/api/reports/general_SRHR_report/
 srh_ou_link:     http://dhisforiom.org:3000/api/system_info/get_org_units/
 srh_users_link:  http://dhisforiom.org:3000/api/system_info/get_users
 user_audit_link: http://dhisforiom.org:3000/api/reports/user_audit_report
+travellers_link: http://dhisforiom.org:3000/api/reports/potential_travellers_report

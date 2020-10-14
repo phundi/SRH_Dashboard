@@ -5,7 +5,7 @@ class ReportController < ApplicationController
 		@reports = [
 				["SRH Report", "/report/srh_report"], 
 				["User Audit Report", "/report/user_audit_report"],
-				["Travellers Report", "/report/report_x"] 
+				["Travellers Report", "/report/travellers_report"] 
 			]
 
   end 
@@ -21,10 +21,15 @@ class ReportController < ApplicationController
 		File.delete("srh_report.xlsx") if File.exists? "srh_report.xlsx"
   end
 
- def user_audit_report
+ 	def user_audit_report
 		
 		File.delete("user_audit_report.xlsx") if File.exists? "user_audit_report.xlsx"
-  end
+	end
+
+	def travellers_report
+		
+		File.delete("travellers_report.xlsx") if File.exists? "travellers_report.xlsx"
+	end
 
 	def ajax_srh_report
 		
@@ -129,6 +134,49 @@ class ReportController < ApplicationController
 		puts url
 		json_data = RestClient::Request.execute(:method => :get, :url => url, :timeout => 1000, :open_timeout => 1000)
 		render :text => json_data
+	end
+
+	def ajax_travellers_report
+		
+		travellers_link = YAML.load_file("#{Rails.root}/config/settings.yml")["travellers_link"]
+		url = travellers_link + "?org_unit_id=#{params[:ou_id]}&start_date=#{params[:start_date].to_date.to_s(:db)}&end_date=#{params[:end_date].to_date.to_s(:db)}"
+
+		#url = "http://dhisforiom.org:3000/api/reports/potential_travellers_report?org_unit_id=n6WeDnrmtBe&start_date=2019-09-01&end_date=2020-09-25"
+		puts url
+		json_data = RestClient::Request.execute(:method => :get, :url => url, :timeout => 1000, :open_timeout => 1000)
+
+		render :text => json_data
+	end
+
+	def download_travellers_excel
+
+		if request.post?
+			Axlsx::Package.new do |p|
+
+				p.workbook.add_worksheet(:name => "Travellers Report") do |sheet|
+
+					sheet.add_row ["#", "CATEGORY", "TOTAL"], :style => p.workbook.styles.add_style({:alignment => {:horizontal => :left, :vertical => :center, :wrap_text => true}, 
+																																								:b => true, 
+																																								:bg_color => "E7E7E7", 
+																																								:sz => 13})						
+					#Adding data values in sheet
+					params[:data].each do |index, d|
+
+							sheet.add_row [d[0], d[1], d[2]], :height => 20, :style => p.workbook.styles.add_style({:alignment => {:horizontal => :left, :wrap_text => true}, 
+																																								:sz => 12}  )																
+					end	
+					
+					col_widths= [nil,75, nil]
+					sheet.column_widths *col_widths	
+				end				
+
+				p.serialize('travellers_report.xlsx')		
+			end
+			render :text => true and return
+		else
+
+	  	send_file("travellers_report.xlsx")
+		end		
 	end
 end
 
