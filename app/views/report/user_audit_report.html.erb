@@ -115,7 +115,7 @@
 			</label>
 		</td>
 		<td class="td-ctrl" >
-			<select id="ou-select" onfocus="updateOrgUnit()">
+			<select id="ou-select" onchange="getOption(this)" onfocus="updateOrgUnit()">
 				<option value=""></option>
 			</select>
 		</td>
@@ -162,7 +162,7 @@
 		var change_agent_id = -1;
 		var change_agent_name = "All";
 		var generated = false;
-
+        var orgUnitName = "";
 	$('input[name="daterange"]').daterangepicker(
       {
         format: 'DD/MMM/YYYY',
@@ -221,6 +221,7 @@
                          val = option.value;
 						 //change the value of org select field
                          t.value = option.id;
+						  orgUnitName = option.innerHTML;
 						 //now load the users for the org unit
                       }
                 }
@@ -303,7 +304,7 @@
 				{
 					method: "POST",
 					url: "download_user_audit_excel",
-					data: {data: rows},
+					data: {data: rows,ou: orgUnitName,start: start_date,end: end_date},
 					success: function(rst){
 						generated = true;
 						console.log(rst);
@@ -342,7 +343,7 @@ function hideSpinner() {
 
 function downloadExcel(){
 	if (generated == true){
-		window.location = "download_user_audit_excel"
+		window.location = "download_user_audit_excel?ou="+orgUnitName+"&start="+start_date+"&end="+end_date;
 	}else{
 		alert("Generate Report First")
 	}
