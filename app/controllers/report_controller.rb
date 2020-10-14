@@ -51,7 +51,7 @@ class ReportController < ApplicationController
 	end
 
 	def download_excel
-        file_name = "#{params[:ou]}[#{params[:username]}]-SRHR_Report(#{params[:start].to_date.to_s rescue ''}-#{params[:end].to_date.to_s rescue ''}).xlsx"
+        file_name = "#{params[:ou].gsub(" ","_")}[#{params[:username]}]-SRHR_Report(#{params[:start].to_date.to_s rescue ''}-#{params[:end].to_date.to_s rescue ''}).xlsx"
 		if request.post?
 			Axlsx::Package.new do |p|
 
@@ -97,7 +97,7 @@ class ReportController < ApplicationController
 	end
 
 	def download_user_audit_excel
-		file_name = "#{params[:ou]}-SRHR_Report(#{params[:start].to_date.to_s rescue ''}-#{params[:end].to_date.to_s rescue ''}).xlsx"
+		file_name = "#{params[:ou].gsub(" ","_")}-SRHR_Report(#{params[:start].to_date.to_s rescue ''}-#{params[:end].to_date.to_s rescue ''}).xlsx"
 		if request.post?
 			Axlsx::Package.new do |p|
 
