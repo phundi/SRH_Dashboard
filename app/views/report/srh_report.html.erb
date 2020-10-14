@@ -434,7 +434,7 @@ function hideSpinner() {
 
 function downloadExcel(){
 	if (generated == true){
-		window.location = "download_excel"
+		window.location = "download_excel?username="+username+"&ou="+orgUnitName+"&start="+start_date+"&end="+end_date;
 	}else{
 		alert("Generate Report First")
 	}
