@@ -192,6 +192,8 @@
 		var change_agent_id = -1;
 		var change_agent_name = "All";
 		var generated = false;
+		var username = "";
+		var orgUnitName = "";
 
 	$('input[name="daterange"]').daterangepicker(
       {
@@ -252,6 +254,7 @@
                          val = option.value;
 						 //change the value of org select field
                          t.value = option.id;
+						 orgUnitName = option.innerHTML;
 						 //now load the users for the org unit
 						 loadUsers(val);
                       }
@@ -280,7 +283,7 @@
 		function buildReport(){
 	  		showSpinner()
                 var ouID = __$("ou-select").value
-				var username = __$("ca-select").value
+				username = __$("ca-select").value
 
 				var url = "ajax_srh_report?start_date=" + start_date + "&end_date=" + end_date
 				url = url + "&ou_id=" + ouID + "&ou_name=" + ou_name
@@ -339,7 +342,7 @@
 				{
 					method: "POST",
 					url: "download_excel",
-					data: {data: rows},
+					data: {data: rows,username: username,ou: orgUnitName,start: start_date,   end: end_date},
 					success: function(rst){
 						generated = true;
 						console.log(rst);

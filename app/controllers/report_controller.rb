@@ -46,7 +46,7 @@ class ReportController < ApplicationController
 	end
 
 	def download_excel
-
+        file_name = "#{params[:ou]}[#{params[:username]}]-SRHR_Report(#{params[:start].to_date.to_s rescue ''}-#{params[:end].to_date.to_s rescue ''}).xlsx"
 		if request.post?
 			Axlsx::Package.new do |p|
 
@@ -83,13 +83,11 @@ class ReportController < ApplicationController
 						sheet.column_widths *col_widths										
 					end											
 				end
-
-				p.serialize('srh_report.xlsx')		
+				p.serialize(file_name)		
 			end
 			render :text => true and return
 		else
-
-	  	send_file("srh_report.xlsx")
+	  	send_file(file_name)
 		end		
 	end
 
