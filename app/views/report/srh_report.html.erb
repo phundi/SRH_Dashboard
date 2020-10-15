@@ -227,10 +227,8 @@
             
 							var ouNode = __$("ou-select"); 
 							jQuery(ouNode).empty();
-							ouNode.appendChild(document.createElement("option"));// a blank option
-							var option = document.createElement("option");					  option.value = "All";
-							option.id = "All";
-							option.innerHTML = "All";			
+						
+							var option = document.createElement("option");					  			
 							ouNode.appendChild(option); //blank option
 
 							for(var i=0; i< organisations.length; i++){
