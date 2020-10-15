@@ -227,7 +227,10 @@
             
 							var ouNode = __$("ou-select"); 
 							jQuery(ouNode).empty();
-							var option = document.createElement("option");								
+							ouNode.appendChild(document.createElement("option"));// a blank option
+							var option = document.createElement("option");					  option.value = "All";
+							option.id = "All";
+							option.innerHTML = "All";			
 							ouNode.appendChild(option); //blank option
 
 							for(var i=0; i< organisations.length; i++){
@@ -359,7 +362,7 @@
 			}
 
 			var ca_url = "http://dhisforiom.org:3000/api/system_info/get_users/"
-			if (orgID) {
+			if (orgID && orgID != "All") {
 			  ca_url += "?org_id=" + orgID;
 			}
 			jQuery.ajax(
@@ -369,8 +372,11 @@
 						 	var users = JSON.parse(JSON.stringify(rst));
 							var caNode = __$("ca-select"); 
 							jQuery(caNode).empty();
-							
-							var option = document.createElement("option");								
+							caNode.appendChild(document.createElement("option"));// a blank option
+							var option = document.createElement("option");
+							option.value = "All";
+							option.id = "All";
+							option.innerHTML = "All";								
 							caNode.appendChild(option);
 
 							for(var i=0; i< users.length; i++){
