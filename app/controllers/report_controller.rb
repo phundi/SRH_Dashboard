@@ -16,8 +16,24 @@ class ReportController < ApplicationController
 		json_data = RestClient::Request.execute(:method => :get, :url => srh_ou_link, :timeout => 1000, :open_timeout => 1000) rescue nil
 		@organisation_units = JSON.parse(json_data) rescue []
 
-		@data = JSON.parse(File.read("public/sample_srhr.json"))
-		@indicators = @data.keys
+        mappings =  { "indicator1"=>"Number of migrants,  AYP and SWs reached with SRHR and HIV  Education",
+                        "indicator2"=>"Number of migrants, AYP and SWs referred for SRHR -HIV services",
+                        "indicator3"=>"Number of migrants, AYP and SWs referred for SRHR-HIV services who received services at the referral destination",
+                        "indicator4"=>"Number of individuals referred for HIV testing (subset of total referred)",
+                        "indicator5"=>"Number of individuals referred for HIV testing who recieved their HIV test results at the referral destination",
+                        "indicator6"=>"Number of individuals referred for ART Treatment (subset of total referred)",
+                        "indicator7"=>"Number of individuals referred for ART Treatment who recieved treatment  at the referral destination (subset of total referred and receiving treatment)",
+                        "indicator8"=>"Number of individuals referred for antenatal care (subset of total referred)",
+                        "indicator9"=>"Number of individuals referred for and received antenatal care  at referral destination  (sub-set of the total antenatal cases identified and referred)",
+                        "indicator10"=>"Number of individuals referred for family planning  (subset of total referred)",
+                        "indicator11"=>"Number of individuals referred for family planning who receive family planning (FP) services (sub-set of the total FP cases identified and referred)",
+                        "indicator12"=>"Number of SGBV survivors identified and referred to service providers for support and protection",
+                        "indicator13"=>"Number referred for non-health services ( paralegal, judiciary, social welfare, counsellors, police)",
+                        "indicator14"=>"Number of SGBV victims identified and referred to service providers for support and protection who received services at the referral destination (sub-set of the total SGBV cases identified and referred)",
+                        "indicator15"=>"Number referred for non-health that receive services at the referral destination ( paralegal, judiciary, social welfare, counsellors, police)"
+                  }              
+		#@data = JSON.parse(File.read("public/sample_srhr.json"))
+		@indicators = mappings.values
 		File.delete("srh_report.xlsx") if File.exists? "srh_report.xlsx"
   end
 
