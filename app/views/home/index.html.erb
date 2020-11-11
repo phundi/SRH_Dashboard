@@ -8,11 +8,55 @@
   <script src="/js/plugins/flot/jquery.flot.pie.js"></script>
   <script src="/js/plugins/flot/excanvas.min.js"></script>
   <script src="/js/d3.min.js"></script>
+   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
 
-
+  <script src="/js/Highcharts-8.2.2/code/highcharts.js"></script>
+  <script src="/js/Highcharts-8.2.2/code/modules/series-label.js"></script>
+  <script src="/js/Highcharts-8.2.2/code/modules/exporting.js"></script>
+  <script src="/js/Highcharts-8.2.2/code/modules/export-data.js"></script>
+  <script src="/js/Highcharts-8.2.2/code/modules/accessibility.js"></script>
 <style>
 
  .bottom-widgets{width: 20%;border: 1px solid lightblue;text-align: middle;height: 12vh;}
+ .highcharts-figure, .highcharts-data-table table {
+    min-width: 360px; 
+    max-width: 800px;
+    margin: 1em auto;
+}
+
+.highcharts-data-table table {
+	font-family: Verdana, sans-serif;
+	border-collapse: collapse;
+	border: 1px solid #EBEBEB;
+	margin: 10px auto;
+	text-align: center;
+	width: 100%;
+	max-width: 500px;
+}
+.highcharts-data-table caption {
+    padding: 1em 0;
+    font-size: 1.2em;
+    color: #555;
+}
+.highcharts-data-table th {
+	font-weight: 600;
+    padding: 0.5em;
+}
+.highcharts-data-table td, .highcharts-data-table th, .highcharts-data-table caption {
+    padding: 0.5em;
+}
+.highcharts-data-table thead tr, .highcharts-data-table tr:nth-child(even) {
+    background: #f8f8f8;
+}
+.highcharts-data-table tr:hover {
+    background: #f1f7ff;
+}
+
 
 </style>
 
@@ -28,11 +72,9 @@
 
 	<tr>
 		 <td id="td-map" style="width: 35%;height: 72vh;border: 1px solid lightblue;">
-			 <div id="c_district"   style="width: 100%; height: 72vh; text-align: center; float: right; margin-top: auto;">	
+			 <div id="mapid"   style="width: 100%; margin-top:0px; height: 600px; text-align: center; float: right; margin-top: auto;">	
 			  
-				<canvas id="district" width="600" height="800"
-					  style="height: 96%; width: 96%;float: left; border: none;margin: 8px;margin-top: 1.5%;">				
-				</canvas>
+				
 
 			   </div>		
 		  </td>
@@ -41,50 +83,145 @@
 			<table style="width: 100%;" >
 					<tr>
 						<td id="td-pie" style='width: 50%;border: none;height: 35vh;'>
-						 	
+						 	<img src = "/images/loader.svg" height="100px" width="200px"/>
 						</td>
 						<td id="td-graph" style='width: 50%;border-left: 1px dotted lightblue; border-right: 1px solid lightblue;'>
-                            <div id="bar-chart" style="width: 100%;height: 35vh;">
-                                
+                             
+                            <div id="bar-chart" style="width: 100%;height: 35vh;">  
+                             <img src = "/images/loader.svg" height="100px" width="200px"/>
                             </div>
 						</td>
 					</tr>
 
 					<tr>
-						 <td id="td-line-graph" colspan="2" style="width: 35%;height: 37h;border: 1px lightblue solid; border-left: none;">
-                            <div id="line-chart" style="width: 100%;height: 37vh;" >
+						 <td id="td-line-graph" colspan="2" style="width: 35%;height: 60h;border: 1px lightblue solid; border-left: none;">
+                            
+                            <div id="line-chart" style="width: 100%;height: 45vh;" >
+                                 <img src = "/images/loader.svg" height="100px" width="200px"/>
                             </div>
 						  </td>
 					</tr>
 				</table>
 		</td>
 	</tr>
-
-	<tr>
-		<td colspan="2" style="width: 100%;" >
-			<table style="width: 100%;" >
-					<tr>
-						<td class="bottom-widgets">
-						 	Widget A
-						</td>
-						<td class="bottom-widgets">
-						 	Widget B
-						</td>
-						<td class="bottom-widgets">
-						 	Widget C
-						</td>
-						<td class="bottom-widgets">
-						 	Widget D
-						</td>
-					</tr>
-				</table>
-		<td>
-	</tr>
 <table>
 
 <script>
+    var mymap = L.map('mapid').setView([-13.79841,32.88019], 10)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(mymap);
+     L.marker([-13.622317,32.634015]).addTo(mymap).bindPopup('Walera Urban Health Post <br/>24 mobile devices deployed<br/>for IOM funded SRHR project').on('click', function (e) {this.openPopup();loadData(e);}).on('mouseout', function (e) {this.closePopup();});
+     L.marker([-13.714878,32.7491166]).addTo(mymap).bindPopup('Katandala Rural Hospital <br/> 5 mobile devices deployed<br/>for IOM funded SRHR project').on('click', function (e) {this.openPopup();loadData(e);}).on('mouseout', function (e) {this.closePopup();});
+     L.marker([-13.746580,32.794715]).addTo(mymap).bindPopup('Mwami Wellness Centre  <br/>2 mobile devices deployed<br/>for IOM funded SRHR project').on('click', function (e) {this.openPopup();loadData(e);}).on('mouseout', function (e) {this.closePopup();});
+     L.marker([-13.8027,32.88716]).addTo(mymap).bindPopup('Mchinji District Hospital <br/> 15 mobile devices deployed<br/>for IOM funded SRHR project').on('click', function (e) {this.openPopup();loadData(e);}).on('mouseout', function (e) {this.closePopup();}); 
+     L.marker([-13.90113,33.06226]).addTo(mymap).bindPopup('Tembwe Rural Hospital<br/>13 mobile devices deployed<br/>for IOM funded SRHR project').on('click', function (e) {this.openPopup();loadData(e);}).on('mouseout', function (e) {this.closePopup();});
+    
+    var dashboardUrl = "http://dhisforiom.org:3000/api/reports/fetch_dashboard_data/";
+    function loadData(e){
+       var coordinates = String(e.latlng).replace("LatLng(","").replace(")","");
+       lat = Number(coordinates.split(",")[0]);
+       if (lat == -13.622317){
+         var name = "Walera Urban Health Post-Zambia";
+         var url = "http://dhisforiom.org:3000/api/reports/fetch_dashboard_data?"+"org_unit_id=yrFIqGEuIdf"
+         updateDashboard(name,url);
+        }
+       if (lat == -13.714878){
+    
+         var name="Katandala Rural Hospital-Zambia"
+         var url = "http://dhisforiom.org:3000/api/reports/fetch_dashboard_data?"+"org_unit_id=dg6bP3I0jjx"
+         updateDashboard(name,url);
+       }  
+       if (lat == -13.746580){
+         var name = "Mwami Border Wellness Centre-Zambia";
+         var url = "http://dhisforiom.org:3000/api/reports/fetch_dashboard_data?"+"org_unit_id=rpz4w1vuXKG"
+        
+         updateDashboard(name,url);
+       }
+       if (lat == -13.8027){
+         var name = "Mchichi District Hospital-Malawi"
+         var url = "http://dhisforiom.org:3000/api/reports/fetch_dashboard_data?"+"org_unit_id=yZwTlSHJYmc"
+         
+         updateDashboard(name,url);
+       }
 
+       if (lat == -13.90113){
+         var name = "Tembwe Rural Hospital-Malawi";
+         var url = "http://dhisforiom.org:3000/api/reports/fetch_dashboard_data?"+"org_unit_id=n6WeDnrmtBe"
+         updateDashboard(name,url);
+       }
+    }
+  
+    var serverData = [];
+    jQuery("document").ready(function () {
+                //drawBoundaries();
+             initDashboard();   
+        });
+    function initDashboard(){
+   
+        jQuery.ajax({
+                    url: dashboardUrl,
+                    success: function(data){
+                    data = JSON.parse(JSON.stringify(data)); 
+                    //build the graphs
+                    //alert(data);
+                    var keyIndicators = data["Key Indicators"];
+                
+                    var datasetL = data["Usage Stats"]
+                                                    
+                        
+                        //Now plot the graphs
+                        var c = plotPieChart(data);
+                        var p = plotBarChart(keyIndicators);
+                        var l = plotLineChart(datasetL);
 
+                    } }); 
+    } 
+
+function updateDashboard(name,url){
+    //update organization unit name element
+    var orgName = document.getElementById("td-ou"); 
+    orgName.innerHTML = name;
+    jQuery.ajax({
+                url: url,
+                success: function(data){
+                data = JSON.parse(JSON.stringify(data)); 
+                //build the graphs
+                //alert(data);
+                var keyIndicators = data["Key Indicators"];
+            
+                var datasetL = data["Usage Stats"] 
+                
+                 var pieData =  {
+                                 name: 'Referrals',
+                                  data: [
+                                    { name: 'Completed', y: data["Referrals"]["completed"] },
+                                    { name: 'Pending', y: data["Referrals"]["pending"] }
+                                     ]
+                                 }
+                   //bar chart data
+                   var barData = [];
+                   barData.push(keyIndicators["Sex workers"]);
+                   barData.push(keyIndicators["SGBV victims"]);
+                   barData.push(keyIndicators["Migrants"]);
+                   barData.push(keyIndicators["Youths"]);
+                   var barSeriesData = {name: 'SRHR Key Indicators',data: barData};  
+                   
+                   //line chart data
+                   var lineData = {name: "SRHR clients Reached",data: datasetL["data"]}
+
+                   //updating charts           
+                   pie.series[0].update(pieData);
+                   pie.redraw();
+                   //bar chart
+                   bar.series[0].update(barSeriesData);
+                   bar.redraw();
+
+                   //line chart                            
+                   lineChart.series[0].update(lineData);
+                   lineChart.redraw();
+                } }); 
+    }    
     function drawBoundaries(){
 			var context = d3.select('#district')
 				.node()
@@ -114,131 +251,158 @@
 
 
         //Initialize and build dataSet for pie Chart
-		var dataSetPie = [
-		  {label: "Complete", data: 40, color: "#00A36A" },
-		  { label: "Pending", data: 60, color: "#DE000F" }   
-		];
-
+		
         //Initialize and build dataSet for Bar Chart
-        var com = 1050, mig = 189, sw = 498;
+        //var com = 1050, mig = 189, sw = 498;
         
         //Initialize and build dataSet for Line Chart
-        var dataL = [
-                [1, 130], [2, 40], [3, 80], [4, 160], [5, 159], [6, 370], 
-                [7, 330], [8, 350], [9, 0], [10, 0], [11, 330], [12, 50] 
-            ];
-            
-            var datasetL = [
-                {
-                    label: "Total Clients Seen in a Particular Month",
-                    data: dataL
-                }                
-            ];
 
 		function plotPieChart(data){
 			
-			return $.plot('#td-pie', data, {
-                series: {
-                pie: {
-                show: true,                
-                label: {
-                show:true,
-                radius: 0.9,
-                formatter: function (label, series) {                
-                    return '<div style="border:1px solid grey;font-size:12pt;text-align:center;padding:5px;color:black;">' +
-                    label + ' : ' +
-                    Math.round(series.percent) +
-                    '%</div>';
+		
+              // Radialize the colors
+            Highcharts.setOptions({
+                colors: Highcharts.map(Highcharts.getOptions().colors, function (color) {
+                    return {
+                        radialGradient: {
+                            cx: 0.5,
+                            cy: 0.3,
+                            r: 0.7
+                        },
+                        stops: [
+                            [0, color],
+                            [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
+                        ]
+                    };
+                })
+            });
+
+            // Build the chart
+            window.pie = new Highcharts.chart('td-pie', {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
                 },
-                background: {
-                    opacity: 0.8,
-                    color: 'ghostwhite'
-                }
-            }
-    		}
-			}
-		});
+                title: {
+                    text: 'Referrals Completion Rate in <br/> the Past 12 Months'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                accessibility: {
+                    point: {
+                        valueSuffix: '%'
+                    }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            connectorColor: 'silver'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Share',
+                    data: [
+                        { name: 'Completed', y: data["Referrals"]["completed"] },
+                        { name: 'Pending', y: data["Referrals"]["pending"] }
+                    ]
+                }]
+            });
 		}
 
-    function plotBarChart(com, mig, sw){
-    
-        var data = [
-            { data: [[0,sw]], color: "darkred", isBar: true },
-            { data: [[1,mig]], color: "orange", isBar: true },
-            { data: [[2,com]], color: "green", isBar: true }           
-          ];
-          
-          return $.plot("#bar-chart", data, {       
-            bars: {
-                show: true,
-                align: 'center',
-                fill: 0.7,
-                hoverable: true,
-                barWidth: 0.6
-            },
-            lines: { 
-              show: true, 
-              lineWidth: 0.1, 
-              fill: false 
-            },
-            grid: {
-                borderWidth:0,
-                hoverable: true,
-                autoHighlight: true
-            },
-            xaxis: {
-              ticks: [[0,'Sex Workers'],[1,'Migrants'],[2,'Community']]
-            },
-            yaxis: {
-                min: 0,
-                max: (com + 30)
-            },
-            legend:{
-              container: '#legend'
+    function plotBarChart(indicators){
+        data = []
+        data.push(indicators["Sex workers"])
+        data.push(indicators["SGBV victims"])
+        data.push(indicators["Migrants"])
+        data.push(indicators["Youths"])
+
+        window.bar = new Highcharts.chart('bar-chart', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Key Indicators Status for the <br/> Past 12 Months'
+        },
+        subtitle: {
+            text: 'Source: IOM DHIS2 instance'
+        },
+        xAxis: {
+            categories: [
+                'Sex Workers',
+                'SGBV victims',
+                'Migrants',
+                'Youths'
+            ],
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Counts'
             }
-        }); 
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y} clients </b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: 'SRHR Key Indicators',
+            data: data
+
+        }]
+    });
+          
     }
 
     function plotLineChart(datasetL){
-        var options = {
-        series: {  
-                lines: {
-                     show: true
-                },      
-                points: {
-                    radius: 5,
-                    show: true,
-                    hoverable: true
-                }            
-            }
-        };
-
-        $.plot($("#line-chart"), datasetL, options);
+     window.lineChart = new Highcharts.chart('line-chart', {
+           title: {
+                 text: 'Monthly SRHR Clients Reached in Past 12 Months'
+            },
+            yAxis: {
+              title: {
+                  text: 'Number of People'
+                 }
+               },
+           xAxis: {
+                   categories: datasetL["categories"]
+                },
+           plotOptions: {
+                series: {
+                  allowPointSelect: true
+                 }
+            },
+            plotOptions: {
+                series: {
+                    label: {
+                        connectorAllowed: false
+                    }
+                }
+             },
+           series: [{
+                   name: "SRHR clients Reached",
+                  data: datasetL["data"]
+                }]
+              });
     }
-
-    jQuery("document").ready(function () {
-    
-            var c = plotPieChart(dataSetPie);
-            var p = plotBarChart(com, mig, sw);
-            var l = plotLineChart(datasetL);
-            
-            setTimeout(function(){
-                drawBoundaries();
-            }, 250)
-            
-            for(var i = 0; i < 3; i++){
-                $.each(p.getData()[i].data, function(i, el){
-                    var o = p.pointOffset({x: el[0], y: el[1]});
-                    $('<div class="data-point-label">' + el[1] + '</div>').css( {
-                        position: 'absolute',
-                        left: o.left - 15,
-                        top: o.top - 25,
-                        display: 'none'
-                    }).appendTo(p.getPlaceholder()).fadeIn('slow');
-                });
-            }            
-    });
-
 
 </script>
 </html>

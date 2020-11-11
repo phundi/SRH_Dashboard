@@ -1,7 +1,9 @@
 class HomeController < ApplicationController
   def index 
-	@sites = ["Mbang'ombe", "Ngoni", "Mbabvi", "Ukwe", "Lumbadzi", "Daeyang", "Area 25", "Likuni", "Kabudula", "St Gabriels", "Mitundu", "Nkhoma"]
-  end
+      url ="http://dhisforiom.org:3000/api/reports/fetch_dashboard_data/"
+      #json_data = RestClient::Request.execute(:method => :get, :url => url, :timeout => 1000, :open_timeout => 1000) rescue nil
+      #@data = JSON.parse(json_data)
+    end
 
  def connection_status
     radius = {}
