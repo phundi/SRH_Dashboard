@@ -286,7 +286,7 @@ function updateDashboard(name,url){
                     type: 'pie'
                 },
                 title: {
-                    text: 'Referrals Completion Rate in <br/> the Past 12 Months'
+                    text: 'Referral Completion Rate for <br/> the Past 12 Months'
                 },
                 tooltip: {
                     pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -322,7 +322,7 @@ function updateDashboard(name,url){
         data.push(indicators["Sex workers"])
         data.push(indicators["SGBV victims"])
         data.push(indicators["Migrants"])
-        data.push(indicators["Youths"])
+        data.push(indicators["Adolescents"])
 
         window.bar = new Highcharts.chart('bar-chart', {
         chart: {
