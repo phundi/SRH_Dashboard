@@ -13,16 +13,24 @@
       <b>View User</b>
       <div class="panel-btn">
         <% if @cur_user.id.to_s == params[:user_id]%>
+
+						<a class="btn btn-sm btn-danger" href="/logout">
+              <span class="glyphicon glyphicon-plus-sign"></span>
+              Logout
+            </a>
+
             <a class="btn btn-sm btn-info" href="/user/change_password?user_id=<%=@user.id%>">
               <span class="glyphicon glyphicon-plus-sign"></span>
               Change Own Password
-            </a>
+            </a>						
         <% end %>
 
+			<% if @cur_user.username == 'admin' %>
         <a class="btn btn-sm btn-info" href="/user/edit?user_id=<%=@user.id%>">
           <span class="glyphicon glyphicon-pencil"></span>
           Edit
         </a>
+			<% end %>
       </div>
     </div>
     <div class="panel-body">
