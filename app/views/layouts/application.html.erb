@@ -126,6 +126,27 @@
 
         <%=javascript_include_tag "datatables/jquery.dataTables.min" %>
 
+
+  			<ul class="nav navbar-right top-nav">
+          <%
+              img_url =   (@cur_user.image.present? && File.exists?("#{Rails.root}/public/#{@cur_user.image}")) ? "#{@cur_user.image}?cache=none" : "/uploads/#{@cur_user.gender}.png?cache=none"
+          %>
+          <a href="#" style="float: left;margin: 4px;"> <img src="<%= img_url %>" alt="<i class='fa fa-user'></i>" class='img-circle' width='40' height='40'></a>
+          <li class="dropdown" style="float: right">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">  <%= @cur_user.username%> <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li>
+                <a href="/user/view?user_id=<%= @cur_user.id%>"><i class="fa fa-fw fa-user"></i> My Account</a>
+              </li>
+             
+              <li class="divider"></li>
+              <li>
+                <a href="/logout"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+
       </nav>
 	
 	
@@ -158,22 +179,36 @@
 						</td>
 					</tr>			
 				</table>
-                <span><i>Powered by IOM</i>	</span>	
+
+				
 		</td>
 
 		
 
-		  <td style="border: 1px ghostwhite solid;height: 92vh; ">
+		  <td style="border: 1px ghostwhite solid;height: 92vh; min-height: 92vh; ">
 
 			<div id="container" style="width: 98%;height: 95%;margin: auto;">
 				<%= yield%>
-			</div>		
+			</div>
+		
 		 </td>						
 		</tr>
 	</table>
 
+          <%
+              img_url =   "/image/IOM_Logo.png?cache=none"
+          %>
+          
+	<span> 
+		<a href="#" style="float: left;margin: 4px;"> <img src="<%= img_url %>" alt="<i class='fa fa-user'></i>" class='img-circle' width='50' height='50'></a>
+		<span> Powered By IOM </span>
+	</span>
+          
+
 
 </body>
+
+
 
 <script>
 

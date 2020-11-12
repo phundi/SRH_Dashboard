@@ -14,7 +14,7 @@ class ApplicationController < ActionController::Base
     if session[:user_id].present?
       @cur_user = User.find(session[:user_id]) rescue (redirect_to '/logout' and return)
     else
-      #redirect_to "/logout"
+      redirect_to "/logout"
     end
 
 		if @cur_user.blank?
