@@ -3,6 +3,7 @@ class HomeController < ApplicationController
       url ="http://dhisforiom.org:3000/api/reports/fetch_dashboard_data/"
       #json_data = RestClient::Request.execute(:method => :get, :url => url, :timeout => 1000, :open_timeout => 1000) rescue nil
       #@data = JSON.parse(json_data)
+		
     end
 
  def connection_status

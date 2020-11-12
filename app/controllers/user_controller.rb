@@ -1,7 +1,6 @@
 class UserController < ApplicationController
   def index
-    #@users = User.all.order(:username)
-	render :template => "blank"
+    @users = User.all.order(:username)
   end
 
   def new
@@ -114,6 +113,7 @@ class UserController < ApplicationController
   end
 
   def login
+
     reset_session
 
     if request.post? and params[:email].present? && params[:password].present?
@@ -172,82 +172,7 @@ class UserController < ApplicationController
     @role = Role.find(params[:role_id])
   end
 
-  def permissions
-    @permissions = Permission.all.order('name')
-  end
-
-  def new_permission
-    @permission = Permission.new
-    @action = "/user/new_permission"
-    if request.post?
-      Permission.create(name: params[:name], display_name: params[:display_name])
-      redirect_to "/user/permissions" and return
-    end
-  end
-
-  def edit_permission
-    @action = "/user/edit_permission"
-    @permission = Permission.find(params[:permission_id])
-    if request.post?
-      @permission.name = params[:name]
-      @permission.display_name = params[:display_name]
-      @permission.save
-      redirect_to "/user/permissions" and return
-    end
-  end
-
-  def delete_permission
-    permission_permissions = PermissionRole.find_by_sql("SELECT * FROM permission_role WHERE permission_id = #{params[:permission_id]}")
-    if permission_permissions.blank?
-      permission = Permission.find(params[:permission_id])
-      permission.destroy
-      flash[:error] = "Successfully deleted permission"
-    else
-      flash[:error] = "Permission already in use by #{permission_permissions.count} items"
-    end
-
-    redirect_to '/user/permissions'
-  end
-
-  def view_permission
-    @permission = Permission.find(params[:permission_id])
-  end
-
-  def role_permissions
-    @role_ids = Role.all.map(&:role_id)
-    @role_names = Role.all.map(&:name)
-
-    @perm_ids = Permission.all.map(&:permission_id)
-    @perm_names = Permission.all.map(&:display_name)
-
-    if request.post?
-      perm_roles = params[:permission_roles]
-      PermissionRole.destroy_all
-      (perm_roles || {}).each do |perm_id, data|
-        data.each do |role_id, selected|
-          if selected == '1'
-            PermissionRole.create(permission_id: perm_id, role_id: role_id)
-          end
-        end
-      end
-
-      redirect_to '/'
-    else
-      @permissions = {}
-      @perm_ids.each do |perm|
-        @permissions[perm] = {}
-        @role_ids.each do |role|
-          q = PermissionRole.where(permission_id: perm, role_id: role)
-          if q.length > 0
-            @permissions[perm][role] = true
-          else
-            @permissions[perm][role] = false
-          end
-        end
-      end
-    end
-  end
-
+  
   def user_roles 
     @role_ids = Role.all.map(&:role_id)
     @role_names = Role.all.map(&:name)

@@ -18,12 +18,14 @@
     <div class="panel-heading ">
       <span class="glyphicon glyphicon-user"></span>
       <b>List Users</b>
+			<% if @cur_user.username == 'admin' %>
       <div class="panel-btn">
         <a class="btn btn-sm btn-info" href="/user/new">
           <span class="glyphicon glyphicon-plus-sign"></span>
           New User
         </a>
       </div>
+			<% end %>
     </div>
     <div class="panel-body">
 
@@ -55,6 +57,8 @@
               <td class="status"><%= u.deleted_at.present? ? 'Blocked' : 'Active'%></td>
               <td>
 
+
+							<% if @cur_user.username == 'admin' %>
                 <!-- delete this user (uses the delete method found at GET /user/{id}/delete -->
                 <% if u.deleted_at.blank? %>
                     <button class="btn btn-sm btn-danger delete-item-link " data-toggle="modal" data-target=".confirm-delete-modal"
@@ -75,6 +79,7 @@
                   <span class="glyphicon glyphicon-edit"></span>
                   Edit
                 </a>
+							<% end %>
 
                 <!-- show the user (uses the show method found at GET /user/{id} -->
                 <a class="btn btn-sm btn-success" href="/user/view?user_id=<%=u.id%>">

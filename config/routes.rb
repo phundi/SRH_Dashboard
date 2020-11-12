@@ -23,4 +23,31 @@ Rails.application.routes.draw do
 	get 'report/ajax_travellers_report'
 	get 'report/download_travellers_excel'
 	post 'report/download_travellers_excel'
+
+
+	get "user/index"
+  get "user/edit"
+  get "user/new"
+  post "user/edit"
+  get "user/delete"
+
+  get "user/change_password"
+  post "user/change_password"
+
+  post "user/new"
+  get "user/view"
+  get "/logout" => 'user#logout'
+  get "/login" => "user#login"
+  post "/login" => "user#login"
+
+  get "user/roles"
+  get "user/permissions"
+
+  get "user/new_role"
+  get "user/edit_role"
+  get "user/edit_role"
+  post "user/edit_role"
+  post "user/new_role"
+  get "user/delete_role"
+  get "user/view_role"
 end
